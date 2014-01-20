@@ -9,9 +9,7 @@ package com.anghiari.dropit.commons;
  */
 public enum Constants {
 
-//    public final String PROTOCOL_PUT = "PUT";
-//    public final String PROTOCOL_GET = "GET";
-
-    GET, PUT;
+    /*Communication protocol methods*/
+    GET, RES_GET, PUT, RES_PUT, STORE, ACK_STORE, RETRIEVE, TRANSFER, PING, PONG;
 
 }

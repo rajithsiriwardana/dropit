@@ -1,9 +1,7 @@
 package com.anghiari.dropit.commons;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
-import com.anghiari.dropit.commons.Constants;
 /**
  * Created with IntelliJ IDEA.
  * User: amila
@@ -14,28 +12,29 @@ import com.anghiari.dropit.commons.Constants;
 public class DropItPacket implements Serializable{
 
     /*Specifies whether the connection is for a get, put or delete*/
-    public String METHOD;
+    private String method;
 
     /*Filename of the file object being handled*/
-    public HashMap<String, Object> attrib;
+    private HashMap<String, Object> attrib;
 
-    public DropItPacket(String method, String filename) {
-        this.METHOD = method;
-        if(Constants.GET.toString().equals(method)){
+    public DropItPacket(String method) {
+        this.method = method;
+    }
 
+    public String getMethod(){
+        return method;
+    }
+
+    public Object getAttribute(String key){
+        return attrib.get(key);
+    }
+
+    public boolean setAttribute(String key, Object value){
+        if(key!=null && value !=null){
+            attrib.put(key, value);
+            return true;
         }
+        return false;
     }
 
-    public HashMap<String, Object> initPut(String filename, File file){
-        HashMap<String, Object> attrib = new HashMap<String, Object>();
-        attrib.put(new String("name"), filename);
-        attrib.put(new String("file"), file);
-        return attrib;
-    }
-
-    public HashMap<String, Object> initGet(String filename){
-        HashMap<String, Object> attrib = new HashMap<String, Object>();
-        attrib.put(new String("name"), filename);
-        return attrib;
-    }
 }
