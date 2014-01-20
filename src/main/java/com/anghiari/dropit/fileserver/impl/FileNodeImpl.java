@@ -1,7 +1,9 @@
-package com.anghiari.dropit.service.fileserver.impl;
+package com.anghiari.dropit.fileserver.impl;
 
 /**
  * @author: sunimal
  */
 public class FileNodeImpl {
+
+
 }
