@@ -6,5 +6,5 @@ package com.anghiari.dropit.requestserver.service;
  */
 public interface Mapper {
 
-    public String calculateNodeId();
+    public KeyId generateKeyId(String key);
 }
