@@ -5,4 +5,6 @@ package com.anghiari.dropit.requestserver;
  * @version ${Revision}
  */
 public interface RequestNode {
+
+    public void start(int port, int nbconn);
 }
