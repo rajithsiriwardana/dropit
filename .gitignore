@@ -1,4 +1,6 @@
 out
 .idea
+.classpath
+.project
 *.iml
 target
