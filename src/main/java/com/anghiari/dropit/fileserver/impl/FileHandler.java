@@ -1,6 +1,7 @@
 package com.anghiari.dropit.fileserver.impl;
 
 
+import com.anghiari.dropit.commons.FileNode;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
@@ -60,5 +61,6 @@ public class FileHandler extends SimpleChannelHandler {
     	  ctx.sendDownstream(responseEvent);
     	
     }
+
 }
 

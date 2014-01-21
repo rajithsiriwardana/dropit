@@ -1,5 +1,7 @@
 package com.anghiari.dropit.execute;
 
+import com.anghiari.dropit.commons.FileNode;
+import com.anghiari.dropit.commons.KeyId;
 import com.anghiari.dropit.fileserver.impl.FileServerNodeImpl;
 
 /**
@@ -10,14 +12,18 @@ public class FileServerRunner {
 
     public static void main(String[] args) {
 
-    
-    	FileServerNodeImpl fileServer2= new FileServerNodeImpl();
-    	fileServer2.bootServer("192.248.8.244", 12501);
-    	
-//    	FileServerNodeImpl fileServer= new FileServerNodeImpl();
-//    	fileServer.bootServer("127.0.0.1", 12500);
-//    	
-//    	fileServer.pingSuccessor("127.0.1", 12501);
+        String ip = "127.0.0.1";
+
+        FileNode node1 = new FileNode(ip, 12500, new KeyId(100));
+    	FileServerNodeImpl fileServer1 = new FileServerNodeImpl();
+    	fileServer1.bootServer(node1);
+
+
+        FileNode node2 = new FileNode(ip, 12501, new KeyId(110));
+    	FileServerNodeImpl fileServer2 = new FileServerNodeImpl();
+    	fileServer2.bootServer(node2);
+
+    	fileServer2.pingSuccessor(ip, 12500);
     	
     }
 }

@@ -1,12 +1,13 @@
 package com.anghiari.dropit.fileserver;
 
 
+import com.anghiari.dropit.commons.FileNode;
 
 /**
  * @author: sunimal
  */
 public interface FileServerNode {
-    public void bootServer(String ip, int port);
+    public void bootServer(FileNode node);
 
     public  int findSuccessor(int hashVal);
 

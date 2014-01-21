@@ -2,26 +2,42 @@ package com.anghiari.dropit.commons;
 
 public class FileNode {
 
+    private String ip;
+    private int port;
+    private KeyId key;
 
-	public FileNode(String ip, int port){
-		this.ip=ip;
-		this.setPort(port);
-		
+    public FileNode(String ip, int port){
+        this.ip = ip;
+        this.port = port;
+    }
+
+	public FileNode(String ip, int port, KeyId key){
+		this.ip = ip;
+		this.port = port;
+		this.key = key;
 	}
-	private String ip;
-	private int port;
+
 	public String getIp() {
 		return ip;
 	}
+
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
+
 	public int getPort() {
 		return port;
 	}
+
 	public void setPort(int port) {
 		this.port = port;
 	}
 
-	
+    public KeyId getKey() {
+        return key;
+    }
+
+    public void setKey(KeyId key) {
+        this.key = key;
+    }
 }
