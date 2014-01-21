@@ -3,11 +3,7 @@ package com.anghiari.dropit.commons;
 import java.io.Serializable;
 import java.util.HashMap;
 /**
- * Created with IntelliJ IDEA.
  * User: amila
- * Date: 1/20/14
- * Time: 5:20 PM
- * To change this template use File | Settings | File Templates.
  */
 public class DropItPacket implements Serializable{
 
