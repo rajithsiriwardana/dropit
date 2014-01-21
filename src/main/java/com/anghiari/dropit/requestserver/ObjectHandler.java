@@ -2,6 +2,8 @@ package com.anghiari.dropit.requestserver;
 
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
+import com.anghiari.dropit.requestserver.service.DHTMapper;
+import com.anghiari.dropit.requestserver.service.KeyId;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
 
@@ -45,7 +47,8 @@ public class ObjectHandler extends SimpleChannelHandler {
         DropItPacket pptmp = (DropItPacket) e.getMessage();
         if (pptmp != null) {
             if(Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod())){
-
+                KeyId id = DHTMapper  //TODO Move to commons
+                        .generateKeyId((String)pptmp.getAttribute(Constants.FILE_NAME.toString()));
             } else {
                 super.messageReceived(ctx, e);
             }
