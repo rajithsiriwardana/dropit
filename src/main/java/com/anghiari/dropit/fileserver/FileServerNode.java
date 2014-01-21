@@ -8,5 +8,6 @@ package com.anghiari.dropit.fileserver;
 public interface FileServerNode {
     public void bootServer(String ip, int port);
 
+    public  int findSuccessor(int hashVal);
 
 }

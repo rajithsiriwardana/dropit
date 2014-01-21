@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 public class DHTMapper {
     private static final int KEYSPACE = 32;    //keyspace = 32 , should be enough
 
+<<<<<<< HEAD
     public static KeyId generateKeyId(String key) {
         try {
             KeyId keyId = new KeyId(0);
@@ -24,6 +25,10 @@ public class DHTMapper {
             //TODO: handle this exception
             e.printStackTrace();
         }
+=======
+
+    public String calculateNodeId() {
+>>>>>>> implementation of file node ring
         return null;
     }
 }

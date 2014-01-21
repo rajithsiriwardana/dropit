@@ -77,6 +77,7 @@ public class RequestServer {
 		Channel channel = bootstrap.bind(new InetSocketAddress(port));
 		channelGroup.add(channel);
 
+		
 		// Starts the monitor
 		monitor.start();
 		System.out.println("Start the monitor");

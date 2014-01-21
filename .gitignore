@@ -2,5 +2,6 @@ out
 .idea
 .classpath
 .project
+.settings
 *.iml
 target
