@@ -2,6 +2,7 @@ package com.anghiari.dropit.fileserver.impl;
 
 import com.anghiari.dropit.fileserver.FileServerNode;
 import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
@@ -17,9 +18,11 @@ import java.util.concurrent.Executors;
  */
 public class FileServerNodeImpl implements FileServerNode{
 
+	private ServerBootstrap bootstrap;
+	
     public void bootServer(String ip, int port) {
         //setup the server
-        ServerBootstrap bootstrap = new ServerBootstrap(
+        bootstrap = new ServerBootstrap(
                 new NioServerSocketChannelFactory(
                         Executors.newCachedThreadPool(),
                         Executors.newCachedThreadPool()));
@@ -35,7 +38,15 @@ public class FileServerNodeImpl implements FileServerNode{
         });
 
         // Bind and start to accept incoming connections.
-        bootstrap.bind(new InetSocketAddress(ip, port));
+        
+        Channel acceptor = this.bootstrap.bind(new InetSocketAddress(ip, port));
+        if (acceptor.isBound()) {
+            System.err.println("+++ SERVER - bound to *:12345");
+
+        } else {
+            System.err.println("+++ SERVER - Failed to bind to *:12345");
+            this.bootstrap.releaseExternalResources();
+        }
     }
 
 
