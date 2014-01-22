@@ -1,5 +1,6 @@
 package com.anghiari.dropit.requestserver.service;
 
+import com.anghiari.dropit.commons.KeyId;
 import org.junit.Before;
 import org.junit.Test;
 

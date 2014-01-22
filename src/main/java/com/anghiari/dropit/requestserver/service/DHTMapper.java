@@ -1,5 +1,7 @@
 package com.anghiari.dropit.requestserver.service;
 
+import com.anghiari.dropit.commons.KeyId;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
