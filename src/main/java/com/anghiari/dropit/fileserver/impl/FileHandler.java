@@ -2,6 +2,7 @@ package com.anghiari.dropit.fileserver.impl;
 
 
 import com.anghiari.dropit.commons.FileNode;
+import com.anghiari.dropit.operations.PongOperation;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
@@ -37,7 +38,9 @@ public class FileHandler extends SimpleChannelHandler {
        
         if(Constants.PING.toString().equalsIgnoreCase(method)){
         	System.out.println("came here "+method );
-        	respondToPing(ctx,e);
+            PongOperation pongOperation=new PongOperation(ctx,e);
+            pongOperation.sendResponse();
+        	//respondToPing(ctx,e);
         }
         else if(Constants.PONG.toString().equalsIgnoreCase(method)){
         	
@@ -50,17 +53,17 @@ public class FileHandler extends SimpleChannelHandler {
     
     /**
      * Respond to the PING request
-     */
-    public void respondToPing(ChannelHandlerContext ctx,MessageEvent e){
-    
-    	DropItPacket dropPkt = new DropItPacket(Constants.PONG.toString());
-    	 // Send back the reponse
-    	  Channel channel = e.getChannel();
-    	  ChannelFuture channelFuture = Channels.future(e.getChannel());
-    	  ChannelEvent responseEvent = new DownstreamMessageEvent(channel, channelFuture, dropPkt, channel.getRemoteAddress());
-    	  ctx.sendDownstream(responseEvent);
-    	
-    }
+//     */
+//    public void respondToPing(ChannelHandlerContext ctx,MessageEvent e){
+//
+//    	DropItPacket dropPkt = new DropItPacket(Constants.PONG.toString());
+//    	 // Send back the reponse
+//    	  Channel channel = e.getChannel();
+//    	  ChannelFuture channelFuture = Channels.future(e.getChannel());
+//    	  ChannelEvent responseEvent = new DownstreamMessageEvent(channel, channelFuture, dropPkt, channel.getRemoteAddress());
+//    	  ctx.sendDownstream(responseEvent);
+//
+//    }
 
 }
 

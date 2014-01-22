@@ -135,7 +135,7 @@ public class FileServerNodeImpl implements FileServerNode{
         return 0;
     }
 
-    private void sendMessage(DropItPacket packet, FileNode node){
+    public void sendMessage(DropItPacket packet, FileNode node){
         System.out.println("Sending MSG; Method:" + packet.getMethod()+ ", Node IP:"+ node.getIp() +", Port:" + node.getPort());
 
         Executor bossPool = Executors.newCachedThreadPool();

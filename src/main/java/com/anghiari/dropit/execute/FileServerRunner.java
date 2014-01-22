@@ -3,6 +3,7 @@ package com.anghiari.dropit.execute;
 import com.anghiari.dropit.commons.FileNode;
 import com.anghiari.dropit.commons.KeyId;
 import com.anghiari.dropit.fileserver.impl.FileServerNodeImpl;
+import com.anghiari.dropit.operations.PingOperation;
 
 /**
  * @author: chinthaka
@@ -23,7 +24,10 @@ public class FileServerRunner {
     	FileServerNodeImpl fileServer2 = new FileServerNodeImpl();
     	fileServer2.bootServer(node2);
 
-    	fileServer2.pingSuccessor(ip, 12500);
+        PingOperation op=new PingOperation(fileServer2,ip,12500);
+        op.sendRequest();
+
+        //fileServer2.pingSuccessor(ip, 12500);
     	
     }
 }
