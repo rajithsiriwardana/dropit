@@ -17,7 +17,7 @@ public class DHTMapperTest {
 
     @Test
     public void testGenerateKeyId() throws Exception {
-        KeyId keyId = DHTMapper.generateKeyId("dropit.png");
+        KeyId keyId = DHTUtils.generateKeyId("dropit.png");
         assertEquals(1870626650L, keyId.getHashId());
     }
 }

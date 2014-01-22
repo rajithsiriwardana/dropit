@@ -7,12 +7,18 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * @author rajith
+ * @author gayashan
  * @version ${Revision}
  */
-public class DHTMapper {
+public class DHTUtils {
     private static final int KEYSPACE = 32;    //keyspace = 32 , should be enough
 
-
+    /**
+     * Generate a hash ID for the given String key
+     *
+     * @param key File name as the key to hash
+     * @return KeyId object with hash inside
+     */
     public static KeyId generateKeyId(String key) {
         try {
             KeyId keyId = new KeyId(0);
