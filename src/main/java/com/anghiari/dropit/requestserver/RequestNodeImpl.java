@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class RequestNodeImpl implements RequestNode {
 
-    @Override
     public void start(int port, int nbconn) {
 
         // Start server with Nb of active threads = 2*NB CPU + 1 as maximum.
