@@ -85,20 +85,48 @@ public class FileServerNodeImpl implements FileServerNode{
         /*If my predecessor key > key ==> ask my predecessor to find keys' successor
         * If my key > key > my predecessor key ==> i'm the successor
         * If key > my key ==> ask my successor to find keys' successor*/
-        long givenKeyValue = key.getHashId();
-        long predecessorKeyValue = retrieveKeyValue(predecessor);
-        long myKeyValue = node.getKey().getHashId();
 
-        if(predecessorKeyValue > givenKeyValue){
-            //TODO: Use dropit protocol to call findSuccessor of my predecessor and return the response
+        /*Try to find the closestPredecessor from my finger list. If I'm the closestPredecessor => return my successor.
+        * Else ask my successor to find the keys' successor.*/
+
+        long givenKeyValue = key.getHashId();
+
+        FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
+        if(node.equals(closestPredecessor)){
+            return getSuccessor();
         }
-        else if (myKeyValue > givenKeyValue){
-            return node;
-        }
-        else{
-            //TODO: Use dropit protocol to call findSuccessor of my immediate successor and return the response
-        }
+
+        //Send message to my successor to get the keys' successor
+        FileNode mySuccessor = getSuccessor();
+        DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
+        packet.setAttribute(Constants.KEY_ID.toString(), key);
+        sendMessage(packet, mySuccessor);
+
         return null;
+    }
+
+    private FileNode getClosestPredecessor(long key){
+        long myKey = node.getKey().getHashId();
+        long currentFingerKey;
+        for(int i = fingers.size()-1; i>=0; i--){
+            currentFingerKey = fingers.get(i).getKey().getHashId();
+            if (currentFingerKey != myKey
+                    && isAfterXButBeforeOrEqualY(key, currentFingerKey, myKey)) {
+                return fingers.get(i);
+            }
+        }
+
+        return node;
+    }
+
+    private boolean isAfterXButBeforeOrEqualY(long id, long x, long y) {
+        if (x == y)
+            return true;
+        if (y < id) {
+            return x > y && x < id;
+        } else {
+            return x < y && x < id || x > y && x > id;
+        }
     }
 
     private long retrieveKeyValue(FileNode predecessor) {
@@ -137,6 +165,10 @@ public class FileServerNodeImpl implements FileServerNode{
                 }
             }
         });
+    }
+
+    private FileNode getSuccessor(){
+        return successors.get(0);
     }
 
     private void pingSuccessor(){

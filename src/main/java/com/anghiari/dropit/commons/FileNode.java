@@ -40,4 +40,13 @@ public class FileNode {
     public void setKey(KeyId key) {
         this.key = key;
     }
+
+    @Override
+    public boolean equals(Object obj){
+        if (FileNode.class.isInstance(obj)) {
+            FileNode other = (FileNode) obj;
+            return other.getKey().getHashId() == key.getHashId();
+        }
+        return false;
+    }
 }
