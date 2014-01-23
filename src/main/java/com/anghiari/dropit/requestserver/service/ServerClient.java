@@ -10,6 +10,7 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
+import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 
 /**
@@ -19,14 +20,20 @@ import com.anghiari.dropit.commons.DropItPacket;
 public class ServerClient {
 	String host;
 	int port;
-	DropItPacket hashPacket;
 
-	public DropItPacket sendHash(DropItPacket hashPacket) throws Exception {
+	public DropItPacket sendHash(String hash) throws Exception {
 		NodeFactory nodeFactory = new NodeFactory();
 		String[] hostdetails = nodeFactory.getNode();
+		
 		this.host = hostdetails[0];
 		this.port = Integer.parseInt(hostdetails[1]);
-		this.hashPacket = hashPacket;
+		
+		/*
+		 * create DrobIt instance and set the attributes 
+		*/
+		DropItPacket hashPacket=new DropItPacket(Constants.FND_SUSC.toString());
+		hashPacket.setAttribute(Constants.FILE_NAME_HASH.toString(), hash);
+		
 		ChannelFactory factory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool(), 3);
 		// Create the bootstrap
