@@ -4,8 +4,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import com.anghiari.dropit.commons.*;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -21,18 +22,25 @@ import org.jboss.netty.handler.codec.serialization.ClassResolvers;
 import org.jboss.netty.handler.codec.serialization.ObjectDecoder;
 import org.jboss.netty.handler.codec.serialization.ObjectEncoder;
 
+import com.anghiari.dropit.commons.Constants;
+import com.anghiari.dropit.commons.DropItPacket;
+import com.anghiari.dropit.commons.FileNode;
+import com.anghiari.dropit.commons.FileNodeList;
+import com.anghiari.dropit.commons.KeyId;
 import com.anghiari.dropit.fileserver.FileServerNode;
-
 
 public class FileServerNodeImpl implements FileServerNode{
 
 	private ServerBootstrap bootstrap;
+	private ServerBootstrap bootstrap_ring;
 
     private FileNode node;
     private FileNode predecessor;
     private ArrayList<FileNode> successors;
     private ArrayList<FileNode> fingers;
 	
+    private static final Logger logger = Logger.getLogger(FileServerNodeImpl.class
+            .getName());
     public void bootServer(FileNode node) {
     	this.node = node;
     	successors = new ArrayList<FileNode>();
@@ -41,8 +49,12 @@ public class FileServerNodeImpl implements FileServerNode{
         //initSuccessors();
         initFingers();
     	
-        /* setup the server */
-        bootstrap = new ServerBootstrap(
+
+    	/**
+    	 *  setup the channel for Outside Communication
+    	 */
+
+        this.bootstrap = new ServerBootstrap(
                 new NioServerSocketChannelFactory(
                         Executors.newCachedThreadPool(),
                         Executors.newCachedThreadPool()));
@@ -58,9 +70,34 @@ public class FileServerNodeImpl implements FileServerNode{
             };
         });
 
-        /* Bind and start to accept incoming connections. */
+      	/**
+    	 *  setup the channel for Ring Communication
+    	 */
         
+        
+        this.bootstrap_ring = new ServerBootstrap(
+                new NioServerSocketChannelFactory(
+                        Executors.newCachedThreadPool(),
+                        Executors.newCachedThreadPool()));
+
+        // Set up the pipeline factory.
+        this.bootstrap_ring.setPipelineFactory(new ChannelPipelineFactory() {
+            public ChannelPipeline getPipeline() throws Exception {
+                return Channels.pipeline(
+                        new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())),//ObjectDecoder might not work if the client side is not using netty ObjectDecoder for decoding.
+                        new ObjectEncoder(),
+                        new FileHandler()
+                );
+            };
+        });
+        
+        
+        
+        /**
+         *  Bind and start to accept incoming connections.
+         */  
         Channel acceptor = this.bootstrap.bind(new InetSocketAddress(node.getIp(), node.getPort()));
+       
         if (acceptor.isBound()) {
             System.err.println("+++ SERVER - bound to *: "+node.getPort());
 
@@ -68,7 +105,27 @@ public class FileServerNodeImpl implements FileServerNode{
             System.err.println("+++ SERVER - Failed to bind to *: "+node.getPort());
             this.bootstrap.releaseExternalResources();
         }
+        
+        /**
+         *  Bind and start to accept incoming connections.
+         */  
+        Channel acceptor_ring = this.bootstrap.bind(new InetSocketAddress(node.getIp(), node.getPort_ring()));
+   
+        if (acceptor_ring.isBound()) {
+            System.err.println("+++ SERVER - bound to *: "+node.getPort());
+
+        } else {
+            System.err.println("+++ SERVER - Failed to bind to *: "+node.getPort());
+            this.bootstrap_ring.releaseExternalResources();
+        }
+        
+        /**
+         * Start the heart beat
+         */
+        initRunAtInterval();
     }
+    
+    
 
     private void initFingers() {
         /* TEMPORARY IMPLEMENTATION.*/
@@ -86,7 +143,13 @@ public class FileServerNodeImpl implements FileServerNode{
         }
     }
 
-
+    private void initRunAtInterval(){
+    	
+    	FileServerRunAtInterval intervalExecutor = new FileServerRunAtInterval(5000, this);
+    	
+    	intervalExecutor.start();
+    }
+    
     /*
      * (non-Javadoc)
      * @see com.anghiari.dropit.fileserver.FileServerNode#findSuccessor(int)
@@ -206,6 +269,40 @@ public class FileServerNodeImpl implements FileServerNode{
         DropItPacket dropItPacket = new DropItPacket(Constants.PING.name());
         sendMessage(dropItPacket, new FileNode(ip, port));
 		
+	}
+
+
+    /**
+     *  Check whether the successor is alive
+     */
+	public void stabilize() {
+		// TODO Auto-generated method stub
+		System.out.println("Stabilized");
+	}
+
+
+    /**
+     * Called periodically. Checks whether the predecessor has failed.
+     */
+	public void checkPredecessor() {
+		
+        if (this.getPredecessor() != null) {
+    
+
+        }else{
+        	logger.log(Level.WARNING, "Predecessor is not set");
+            this.setPredecessor(null);
+        }
+	}
+
+	
+	private FileNode getPredecessor() {
+		return predecessor;
+	}
+
+
+	private void setPredecessor(FileNode predecessor) {
+		this.predecessor = predecessor;
 	}
 
 	

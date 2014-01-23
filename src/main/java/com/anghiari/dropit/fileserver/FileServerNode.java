@@ -13,5 +13,17 @@ public interface FileServerNode {
     public  int findSuccessor(int hashVal);
 
     public void sendMessage(DropItPacket packet, FileNode node);
+    
+    public void stabilize();
+    
+	/**
+	 *      Check whether the successor is alive
+	 */
+//    public void fixFingers();
+    
+
+    public void checkPredecessor();
+    
+    
 
 }
