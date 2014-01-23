@@ -31,7 +31,7 @@ public class FileServerNodeImpl implements FileServerNode {
 
 	public void bootServer(FileNode node) {
 		this.node = node;
-		successors = new ArrayList<FileNode>();
+		setSuccessors(new ArrayList<FileNode>());
 		initSuccessors();
 		initFingers();
 
@@ -166,13 +166,13 @@ public class FileServerNodeImpl implements FileServerNode {
         	}
         }
         
-        successors.add(pos<numberOfNodes?nodes[pos++]:nodes[pos++ - numberOfNodes]);
-        successors.add(pos<numberOfNodes?nodes[pos++]:nodes[pos++ - numberOfNodes]);
-        successors.add(pos<numberOfNodes?nodes[pos++]:nodes[pos++ - numberOfNodes]);
+        getSuccessors().add(pos<numberOfNodes?nodes[pos++]:nodes[pos++ - numberOfNodes]);
+        getSuccessors().add(pos<numberOfNodes?nodes[pos++]:nodes[pos++ - numberOfNodes]);
+        getSuccessors().add(pos<numberOfNodes?nodes[pos++]:nodes[pos++ - numberOfNodes]);
         
         System.out.println("My Successors");
         for (int i = 0; i < Constants.SUCCESSOR_LIST_SIZE; i++) {
-			System.out.println(" "+successors.get(i).getPort() + "with key "+ successors.get(i).getKey().getHashId());
+			System.out.println(" "+getSuccessors().get(i).getPort() + "with key "+ getSuccessors().get(i).getKey().getHashId());
 		}
 	}
 
@@ -326,12 +326,12 @@ public class FileServerNodeImpl implements FileServerNode {
     }
 
     public FileNode getSuccessor(){
-        return successors.get(0);
+        return getSuccessors().get(0);
     }
 
     private void pingSuccessor(){
         DropItPacket dropItPacket = new DropItPacket(Constants.PING.name());
-        sendMessage(dropItPacket, successors.get(0));
+        sendMessage(dropItPacket, getSuccessors().get(0));
     }
 
     /**
@@ -355,7 +355,7 @@ public class FileServerNodeImpl implements FileServerNode {
 	public void stabilize() {
 		
 		DropItPacket packet = new DropItPacket(Constants.PING.toString());
-		this.sendMessage(packet, this.getSuccessor(), new RingCommunicationHandler());
+		this.sendMessage(packet, this.getSuccessor(), new RingCommunicationHandler(this));
 		System.out.println("Stabilized "+this.node.getPort_ring());
 	}
 
@@ -384,6 +384,14 @@ public class FileServerNodeImpl implements FileServerNode {
 
 		sendMessage(packet, node);
 		return 0;
+	}
+
+	public ArrayList<FileNode> getSuccessors() {
+		return successors;
+	}
+
+	public void setSuccessors(ArrayList<FileNode> successors) {
+		this.successors = successors;
 	}
 
 }
