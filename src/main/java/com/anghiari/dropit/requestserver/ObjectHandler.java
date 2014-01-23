@@ -64,7 +64,7 @@ public class ObjectHandler extends SimpleChannelHandler {
                 for (String fileName : receivedList) {
                     this.activeFilesList.add(fileName);
                 }
-            } else if(Constants.GET_FILENODE.toString().equalsIgnoreCase(pptmp.getMethod())){
+            } else if (Constants.GET_FILENODE.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 DropItPacket packet = new DropItPacket(Constants.RES_GET_FILENODE.toString());
                 packet.setAttribute(Constants.INET_ADDRESS.toString(), NodeFactory.getNode());
                 sendResponse(ctx, e, packet);
@@ -72,12 +72,6 @@ public class ObjectHandler extends SimpleChannelHandler {
                 super.messageReceived(ctx, e);
             }
         }
-    }
-
-    public void gossip() {
-        DropItPacket packet = new DropItPacket(Constants.GOSSIP.toString());
-        packet.setAttribute(Constants.GOS_LIST.toString(), this.activeFilesList);
-
     }
 
     public void sendResponse(ChannelHandlerContext ctx, MessageEvent e, DropItPacket packet) {
