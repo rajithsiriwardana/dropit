@@ -9,9 +9,8 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.handler.codec.serialization.ClassResolvers;
-import org.jboss.netty.handler.codec.serialization.ObjectDecoder;
-import org.jboss.netty.handler.codec.serialization.ObjectEncoder;
+import org.jboss.netty.handler.codec.serialization.CompatibleObjectDecoder;
+import org.jboss.netty.handler.codec.serialization.CompatibleObjectEncoder;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
 import java.net.InetSocketAddress;
@@ -77,8 +76,8 @@ public class RequestNodeImpl implements RequestNode {
         this.bootstrap_rs.setPipelineFactory(new ChannelPipelineFactory() {
             public ChannelPipeline getPipeline() throws Exception {
                 return Channels.pipeline(
-                        new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())),//ObjectDecoder might not work if the client side is not using netty ObjectDecoder for decoding.
-                        new ObjectEncoder(),
+                        new CompatibleObjectDecoder(),//CompatibleObjectDecoder might not work if the client side is not using netty CompatibleObjectDecoder for decoding.
+                        new CompatibleObjectEncoder(),
                         new ObjectHandler(channelGroup, activeFilesList)
                 );
             }
@@ -120,8 +119,8 @@ public class RequestNodeImpl implements RequestNode {
         ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
             public ChannelPipeline getPipeline() throws Exception {
                 return Channels.pipeline(
-                        new ObjectEncoder(),
-                        new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())),//ObjectDecoder might not work if the client side is not using netty ObjectDecoder for decoding.
+                        new CompatibleObjectEncoder(),
+                        new CompatibleObjectDecoder(),//CompatibleObjectDecoder might not work if the client side is not using netty CompatibleObjectDecoder for decoding.
                         objectHandler);
             }
         };
