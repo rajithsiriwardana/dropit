@@ -15,6 +15,7 @@ public class DropItPacket implements Serializable{
 
     public DropItPacket(String method) {
         this.method = method;
+        this.attrib = new HashMap<String, Object>();
     }
 
     public String getMethod(){
