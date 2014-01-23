@@ -2,6 +2,11 @@ package com.anghiari.dropit.fileserver.impl;
 
 import com.anghiari.dropit.operations.PingOperation;
 
+/**
+ * 
+ * @author chinthaka316
+ *
+ */
 public class FileServerRunAtInterval extends AbstractRunAtInterval{
 
 	private FileServerNodeImpl fileServer;

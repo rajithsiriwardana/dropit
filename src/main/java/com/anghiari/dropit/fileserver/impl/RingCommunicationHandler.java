@@ -11,6 +11,12 @@ import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.operations.PongOperation;
 
+/**
+ * 
+ * @author chinthaka316
+ *
+ */
+
 public class RingCommunicationHandler extends SimpleChannelHandler {
 
 
