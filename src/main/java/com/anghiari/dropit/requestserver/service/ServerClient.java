@@ -1,8 +1,8 @@
 package com.anghiari.dropit.requestserver.service;
 
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
-
+import com.anghiari.dropit.commons.Constants;
+import com.anghiari.dropit.commons.DropItPacket;
+import com.anghiari.dropit.commons.KeyId;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
@@ -10,9 +10,8 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
-import com.anghiari.dropit.commons.Constants;
-import com.anghiari.dropit.commons.DropItPacket;
-import com.anghiari.dropit.commons.KeyId;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
 
 /**
  * @author madhawa
@@ -23,8 +22,7 @@ public class ServerClient {
 	int port;
 
 	public DropItPacket sendHash(KeyId keyId) throws Exception {
-		NodeFactory nodeFactory = new NodeFactory();
-		String[] hostdetails = nodeFactory.getNode();
+		String[] hostdetails = NodeFactory.getNode();
 		
 		this.host = hostdetails[0];
 		this.port = Integer.parseInt(hostdetails[1]);
