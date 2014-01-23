@@ -1,5 +1,7 @@
 package com.anghiari.dropit.fileserver;
 
+
+import org.jboss.netty.channel.SimpleChannelHandler;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.commons.FileNode;
 
@@ -14,7 +16,9 @@ public interface FileServerNode {
 	public void sendMessage(DropItPacket packet, FileNode node);
 
 	public void stabilize();
-
+   
+    public void sendMessage(DropItPacket packet, FileNode node, SimpleChannelHandler handler);
+    
 	/**
 	 * Check whether the successor is alive
 	 */

@@ -4,6 +4,7 @@ import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.commons.KeyId;
 import com.anghiari.dropit.requestserver.service.DHTUtils;
+import com.anghiari.dropit.requestserver.service.NodeFactory;
 import com.anghiari.dropit.requestserver.service.ServerClient;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -63,16 +64,14 @@ public class ObjectHandler extends SimpleChannelHandler {
                 for (String fileName : receivedList) {
                     this.activeFilesList.add(fileName);
                 }
+            } else if (Constants.GET_FILENODE.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                DropItPacket packet = new DropItPacket(Constants.RES_GET_FILENODE.toString());
+                packet.setAttribute(Constants.INET_ADDRESS.toString(), NodeFactory.getNode());
+                sendResponse(ctx, e, packet);
             } else {
                 super.messageReceived(ctx, e);
             }
         }
-    }
-
-    public void gossip() {
-        DropItPacket packet = new DropItPacket(Constants.GOSSIP.toString());
-        packet.setAttribute(Constants.GOS_LIST.toString(), this.activeFilesList);
-
     }
 
     public void sendResponse(ChannelHandlerContext ctx, MessageEvent e, DropItPacket packet) {

@@ -1,5 +1,8 @@
 package com.anghiari.dropit.requestserver;
 
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+
 /**
  * @author rajith
  * @version ${Revision}
@@ -7,4 +10,6 @@ package com.anghiari.dropit.requestserver;
 public interface RequestNode {
 
     public void start(int port, int nbconn);
+
+    public void setActiveRSList(ArrayList<InetSocketAddress> activeRSList);
 }

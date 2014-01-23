@@ -11,9 +11,10 @@ public enum Constants {
 
 
 	/* Attribute keys */
-	FILE_NAME, KEY_ID, GOS_LIST;
+	FILE_NAME, KEY_ID, GOS_LIST, INET_ADDRESS;
 
 	public static final int KEY_SPACE = 32;
+    public static final int SUCCESSOR_LIST_SIZE = 3;
 
 	public static final FileNode[] REQUEST_SERVER_LIST = new FileNode[2];
 
@@ -21,4 +22,5 @@ public enum Constants {
 		REQUEST_SERVER_LIST[0] = new FileNode("", 0);
 		REQUEST_SERVER_LIST[1] = new FileNode("", 0);
 	}
+
 }
