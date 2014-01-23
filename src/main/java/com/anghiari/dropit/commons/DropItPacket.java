@@ -9,6 +9,7 @@ public class DropItPacket implements Serializable{
 
     /*Specifies whether the connection is for a get, put or delete*/
     private String method;
+    private byte[] data;
 
     /*Filename of the file object being handled*/
     private HashMap<String, Object> attrib;
@@ -34,4 +35,11 @@ public class DropItPacket implements Serializable{
         return false;
     }
 
+    public byte[] getData() {
+        return data;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
 }

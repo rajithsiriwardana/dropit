@@ -1,29 +1,16 @@
 package com.anghiari.dropit.fileserver.impl;
 
 
-import com.anghiari.dropit.commons.FileNode;
+import com.anghiari.dropit.commons.Constants;
+import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.operations.PongOperation;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.DownstreamMessageEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 
-import com.anghiari.dropit.commons.Constants;
-import com.anghiari.dropit.commons.DropItPacket;
-
 /**
  * User: amila
-<<<<<<< HEAD
-=======
  * @author chinthaka316
- * Date: 1/20/14
- * Time: 4:57 PM
- * To change this template use File | Settings | File Templates.
->>>>>>> implementation of file node ring
  */
 
 public class FileHandler extends SimpleChannelHandler {

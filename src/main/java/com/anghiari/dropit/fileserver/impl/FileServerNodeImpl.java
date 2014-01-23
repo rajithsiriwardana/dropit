@@ -23,9 +23,7 @@ import org.jboss.netty.handler.codec.serialization.ObjectEncoder;
 
 import com.anghiari.dropit.fileserver.FileServerNode;
 
-/**
- * @author: sunimal
- */
+
 public class FileServerNodeImpl implements FileServerNode{
 
 	private ServerBootstrap bootstrap;
@@ -39,14 +37,17 @@ public class FileServerNodeImpl implements FileServerNode{
     	this.node = node;
     	successors = new ArrayList<FileNode>();
     	successors.add(FileNodeList.getFileNodeList().get(1));
+
+        //initSuccessors();
+        initFingers();
     	
-        //setup the server
+        /* setup the server */
         bootstrap = new ServerBootstrap(
                 new NioServerSocketChannelFactory(
                         Executors.newCachedThreadPool(),
                         Executors.newCachedThreadPool()));
 
-        // Set up the pipeline factory.
+        /* Set up the pipeline factory. */
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             public ChannelPipeline getPipeline() throws Exception {
                 return Channels.pipeline(
@@ -57,7 +58,7 @@ public class FileServerNodeImpl implements FileServerNode{
             };
         });
 
-        // Bind and start to accept incoming connections.
+        /* Bind and start to accept incoming connections. */
         
         Channel acceptor = this.bootstrap.bind(new InetSocketAddress(node.getIp(), node.getPort()));
         if (acceptor.isBound()) {
@@ -68,8 +69,24 @@ public class FileServerNodeImpl implements FileServerNode{
             this.bootstrap.releaseExternalResources();
         }
     }
-    
-    
+
+    private void initFingers() {
+        /* TEMPORARY IMPLEMENTATION.*/
+        fingers = new ArrayList<FileNode>();
+        for(int i = 0; i < Constants.KEY_SPACE; i++){
+            fingers.add(node);
+        }
+    }
+
+    private void initSuccessors() {
+        /* TEMPORARY IMPLEMENTATION.*/
+        successors = new ArrayList<FileNode>();
+        for(int i = 0; i < Constants.KEY_SPACE; i++){
+            successors.add(node);
+        }
+    }
+
+
     /*
      * (non-Javadoc)
      * @see com.anghiari.dropit.fileserver.FileServerNode#findSuccessor(int)
@@ -105,6 +122,7 @@ public class FileServerNodeImpl implements FileServerNode{
         return null;
     }
 
+    /*Scan this nodes finger list to find the closest predecessor for the given key.*/
     private FileNode getClosestPredecessor(long key){
         long myKey = node.getKey().getHashId();
         long currentFingerKey;

@@ -14,17 +14,20 @@ public class FileServerRunner {
     public static void main(String[] args) {
 
         String ip = "127.0.0.1";
+        int port = 14500;
+        int key = 100;
+        int numberOfNodes = Integer.parseInt(args[0]);
 
-        FileNode node1 = new FileNode(ip, 12500, new KeyId(100));
-    	FileServerNodeImpl fileServer1 = new FileServerNodeImpl();
-    	fileServer1.bootServer(node1);
+        FileNode node;
+        FileServerNodeImpl fileServer;
 
+        for(int i = 0; i < numberOfNodes; i++){
+            node = new FileNode(ip, port++, new KeyId(key++));
+            fileServer = new FileServerNodeImpl();
+            fileServer.bootServer(node);
+        }
 
-        FileNode node2 = new FileNode(ip, 12501, new KeyId(110));
-    	FileServerNodeImpl fileServer2 = new FileServerNodeImpl();
-    	fileServer2.bootServer(node2);
-
-        PingOperation op=new PingOperation(fileServer2,ip,12500);
+        PingOperation op=new PingOperation(new FileServerNodeImpl(),ip,--port);
         op.sendRequest();
 
         //fileServer2.pingSuccessor(ip, 12500);
