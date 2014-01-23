@@ -34,9 +34,9 @@ public class ObjectHandler extends SimpleChannelHandler {
      *
      * @param channelGroup
      */
-    public ObjectHandler(ChannelGroup channelGroup) {
+    public ObjectHandler(ChannelGroup channelGroup, ArrayList<String> activeFilesList) {
         this.channelGroup = channelGroup;
-        this.activeFilesList = new ArrayList<String>();
+        this.activeFilesList = activeFilesList;
     }
 
     @Override
@@ -57,8 +57,10 @@ public class ObjectHandler extends SimpleChannelHandler {
                 //add file name to the list
                 this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
             } else if (Constants.GOSSIP.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                System.out.println("GOSSIP received");
                 //get the list from the gossip msg
                 ArrayList<String> receivedList = (ArrayList<String>) pptmp.getAttribute(Constants.GOS_LIST.toString());
+                System.out.println("Received" + receivedList.get(0));
                 //merge two lists
                 //duplicates are not considered
                 for (String fileName : receivedList) {
