@@ -98,7 +98,7 @@ public class RequestNodeImpl implements RequestNode {
     }
 
     private void initGossipProtocol() {
-        GossipClientRunAtInterval gossipClientRunAtInterval = new GossipClientRunAtInterval(1000, this);
+        GossipClientRunAtInterval gossipClientRunAtInterval = new GossipClientRunAtInterval(5000, this);
         gossipClientRunAtInterval.start();
     }
 
@@ -106,6 +106,7 @@ public class RequestNodeImpl implements RequestNode {
         System.out.println("gossiping");
         DropItPacket packet = new DropItPacket(Constants.GOSSIP.toString());
         packet.setAttribute(Constants.GOS_LIST.toString(), this.activeFilesList);
+        //select a request server node at random
         Random r = new Random();
         int index = r.nextInt(this.activeRSList.size());
         ChannelGroup channelGroup = new DefaultChannelGroup(RequestNodeImpl.class.getName());

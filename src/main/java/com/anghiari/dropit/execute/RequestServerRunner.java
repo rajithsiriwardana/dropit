@@ -22,24 +22,29 @@ public class RequestServerRunner {
         int port = Integer.parseInt(args[0]);
         int nbconn = Integer.parseInt(args[1]);
 
-//        ArrayList<InetSocketAddress> rsList1 = new ArrayList<InetSocketAddress>();
-//        for(int i=0;i<5;++i){
-//            rsList1.add(new InetSocketAddress("127.0.0.1",port + i));
-//        }
-//        for(int i=0;i<5;++i){
-//            RequestNode node = new RequestNodeImpl();
-//            node.start(port + i, nbconn);
-//            node.setActiveRSList(rsList1);
-//        }
         ArrayList<InetSocketAddress> rsList1 = new ArrayList<InetSocketAddress>();
         ArrayList<InetSocketAddress> rsList2 = new ArrayList<InetSocketAddress>();
+        ArrayList<InetSocketAddress> rsList3 = new ArrayList<InetSocketAddress>();
+        ArrayList<InetSocketAddress> rsList4 = new ArrayList<InetSocketAddress>();
+
+
+        rsList1.add(new InetSocketAddress("127.0.0.1", port + 20));
         rsList1.add(new InetSocketAddress("127.0.0.1", port + 10));
         rsList2.add(new InetSocketAddress("127.0.0.1", port));
+        rsList2.add(new InetSocketAddress("127.0.0.1", port + 20));
+        rsList3.add(new InetSocketAddress("127.0.0.1", port));
+        rsList3.add(new InetSocketAddress("127.0.0.1", port + 10));
+
         RequestNode node = new RequestNodeImpl();
-        node.start(port, nbconn);
         node.setActiveRSList(rsList1);
+        node.start(port, nbconn);
+
         RequestNode node2 = new RequestNodeImpl();
-        node2.start(port + 10, nbconn);
         node2.setActiveRSList(rsList2);
+        node2.start(port + 10, nbconn);
+
+        RequestNode node3 = new RequestNodeImpl();
+        node3.setActiveRSList(rsList3);
+        node3.start(port + 20, nbconn);
     }
 }
