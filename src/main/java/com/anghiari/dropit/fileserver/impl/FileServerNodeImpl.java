@@ -359,8 +359,27 @@ public class FileServerNodeImpl implements FileServerNode {
 	}
 
 	public int requestNodePosition(DropItPacket packet) {
-		// TODO Auto-generated method stub
+
+		sendMessage(packet, node);
 		return 0;
 	}
 
+}
+
+/**
+ * Handles the response message sent from the request server.
+ * 
+ * @author Sanka
+ * 
+ */
+class NodeConnectionHandler {
+	public void handleResponse(String[] address) {
+		if (address.length < 2) {
+			throw new IllegalStateException("Address format is unacceptable.");
+		}
+		String host = address[0];
+		int port = Integer.parseInt(address[1]);
+
+		
+	}
 }
