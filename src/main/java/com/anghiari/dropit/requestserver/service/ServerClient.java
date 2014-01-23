@@ -17,17 +17,16 @@ import com.anghiari.dropit.commons.DropItPacket;
  * 
  */
 public class ServerClient {
-	final String host;
-	final int port;
-	final DropItPacket hashPacket;
+	String host;
+	int port;
+	DropItPacket hashPacket;
 
-	public ServerClient(String[] args, DropItPacket hashPacket) {
-		this.host = args[0];
-		this.port = Integer.parseInt(args[1]);
+	public DropItPacket sendHash(DropItPacket hashPacket) throws Exception {
+		NodeFactory nodeFactory = new NodeFactory();
+		String[] hostdetails = nodeFactory.getNode();
+		this.host = hostdetails[0];
+		this.port = Integer.parseInt(hostdetails[1]);
 		this.hashPacket = hashPacket;
-	}
-
-	public void sendHash() throws Exception {
 		ChannelFactory factory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool(), 3);
 		// Create the bootstrap
@@ -45,7 +44,7 @@ public class ServerClient {
 		bootstrap.setOption("connectTimeoutMillis", 100);
 
 		// *** Start the Netty running ***
-
+		System.out.println("*** Start the Netty running ***");
 		// Connect to the server, wait for the connection and get back the
 		// channel
 		Channel channel = bootstrap.connect(new InetSocketAddress(host, port))
@@ -63,5 +62,6 @@ public class ServerClient {
 		// Now release resources
 		System.out.println("close external resources");
 		factory.releaseExternalResources();
+		return respondHashPacket;
 	}
 }
