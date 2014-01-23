@@ -4,7 +4,6 @@ import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.execute.RequestServerRunner;
 import com.anghiari.dropit.requestserver.service.ServerClient;
-import com.anghiari.dropit.requestserver.service.ServerClientHandler;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
@@ -38,7 +37,7 @@ public class RequestServerTest {
                 Executors.newCachedThreadPool(), 3);
         ClientBootstrap bootstrap = new ClientBootstrap(factory);
         ChannelGroup channelGroup = new DefaultChannelGroup(ServerClient.class.getName());
-        ServerClientHandler handler = new ServerClientHandler(packet);
+        ResponseHandler handler = new ResponseHandler();
 
         bootstrap.getPipeline().addLast("handler", handler);
         bootstrap.setOption("tcpNoDelay", true);
@@ -46,11 +45,11 @@ public class RequestServerTest {
         bootstrap.setOption("reuseAddress", true);
         bootstrap.setOption("connectTimeoutMillis", 100);
 
-        Channel channel = bootstrap.connect(new InetSocketAddress("localhost", 8005))
+        Channel channel = bootstrap.connect(new InetSocketAddress("127.0.0.1", 8005))
                 .awaitUninterruptibly().getChannel();
         channelGroup.add(channel);
 
-        DropItPacket respondHashPacket = handler.getRespond();
+        DropItPacket respondHashPacket = handler.getResponse();
 
         channelGroup.close().awaitUninterruptibly();
         factory.releaseExternalResources();
