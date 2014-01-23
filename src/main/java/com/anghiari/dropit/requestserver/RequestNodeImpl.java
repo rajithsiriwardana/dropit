@@ -7,9 +7,7 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.handler.codec.serialization.ClassResolvers;
-import org.jboss.netty.handler.codec.serialization.ObjectDecoder;
-import org.jboss.netty.handler.codec.serialization.ObjectEncoder;
+import org.jboss.netty.handler.codec.serialization.*;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
 import java.net.InetSocketAddress;
@@ -72,8 +70,8 @@ public class RequestNodeImpl implements RequestNode {
         this.bootstrap_rs.setPipelineFactory(new ChannelPipelineFactory() {
             public ChannelPipeline getPipeline() throws Exception {
                 return Channels.pipeline(
-                        new ObjectDecoder(ClassResolvers.cacheDisabled(getClass().getClassLoader())),//ObjectDecoder might not work if the client side is not using netty ObjectDecoder for decoding.
-                        new ObjectEncoder(),
+                        new CompatibleObjectDecoder(),//ObjectDecoder might not work if the client side is not using netty ObjectDecoder for decoding.
+                        new CompatibleObjectEncoder(),
                         new ObjectHandler(channelGroup)
                 );
             }
