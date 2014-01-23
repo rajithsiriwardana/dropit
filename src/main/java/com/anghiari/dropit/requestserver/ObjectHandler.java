@@ -4,6 +4,7 @@ import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.commons.KeyId;
 import com.anghiari.dropit.requestserver.service.DHTUtils;
+import com.anghiari.dropit.requestserver.service.ServerClient;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
 
@@ -49,6 +50,8 @@ public class ObjectHandler extends SimpleChannelHandler {
             if (Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 KeyId id = DHTUtils
                         .generateKeyId((String) pptmp.getAttribute(Constants.FILE_NAME.toString()));
+                ServerClient client = new ServerClient();
+                sendResponse(ctx, e, client.sendHash(id));
             } else {
                 super.messageReceived(ctx, e);
             }
@@ -61,5 +64,13 @@ public class ObjectHandler extends SimpleChannelHandler {
                 .getCause());
         System.out.println(e.toString());
         Channels.close(e.getChannel());
+    }
+
+    public void sendResponse(ChannelHandlerContext ctx, MessageEvent e, DropItPacket packet){
+        Channel channel = e.getChannel();
+        ChannelFuture channelFuture = Channels.future(e.getChannel());
+        ChannelEvent responseEvent =
+                new DownstreamMessageEvent(channel, channelFuture, packet, channel.getRemoteAddress());
+        ctx.sendDownstream(responseEvent);
     }
 }
