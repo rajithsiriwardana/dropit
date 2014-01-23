@@ -4,12 +4,15 @@ import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.operations.AckStoreOperation;
 import com.anghiari.dropit.operations.PongOperation;
+import com.anghiari.dropit.operations.TransferOperation;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 /**
@@ -54,6 +57,16 @@ public class FileHandler extends SimpleChannelHandler {
             stream.write(fileByteArray);
             AckStoreOperation ackStoreOperation=new AckStoreOperation(ctx,e);
             ackStoreOperation.sendResponse();
+        }
+        else if(Constants.RETRIEVE.toString().equalsIgnoreCase(method)){
+            File file = new File((String)pkt.getAttribute(Constants.FILE_NAME.toString()));
+            byte[] filedata = new byte[(int) file.length()];
+            //Modify path with the folder to save files
+            FileInputStream fileInputStream = new FileInputStream(file);
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+            bufferedInputStream.read(filedata, 0, filedata.length);
+            TransferOperation transferOperation=new TransferOperation(ctx,e);
+            transferOperation.sendResponse();
         }
 		super.messageReceived(ctx, e);
 	}

@@ -11,7 +11,7 @@ import org.jboss.netty.channel.MessageEvent;
 public class AckStoreOperation extends AbstractOperation{
     public AckStoreOperation(ChannelHandlerContext channelHandlerContext,MessageEvent evt) {
         // Send back the reponse
-        packet=new DropItPacket(Constants.PONG.toString());
+        packet=new DropItPacket(Constants.ACK_STORE.toString());
         ctx=channelHandlerContext;
         e=evt;
     }
