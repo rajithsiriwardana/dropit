@@ -11,7 +11,7 @@ public enum Constants {
 
 
 	/* Attribute keys */
-	FILE_NAME, KEY_ID, GOS_LIST, INET_ADDRESS;
+	FILE_NAME, KEY_ID, GOS_LIST, INET_ADDRESS, NODE_IP, NODE_PORT;
 
 	public static final int KEY_SPACE = 32;
     public static final int SUCCESSOR_LIST_SIZE = 3;
