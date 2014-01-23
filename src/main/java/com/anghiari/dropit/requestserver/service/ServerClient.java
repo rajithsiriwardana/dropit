@@ -12,6 +12,7 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
+import com.anghiari.dropit.commons.KeyId;
 
 /**
  * @author madhawa
@@ -21,7 +22,7 @@ public class ServerClient {
 	String host;
 	int port;
 
-	public DropItPacket sendHash(String hash) throws Exception {
+	public DropItPacket sendHash(KeyId keyId) throws Exception {
 		NodeFactory nodeFactory = new NodeFactory();
 		String[] hostdetails = nodeFactory.getNode();
 		
@@ -32,7 +33,7 @@ public class ServerClient {
 		 * create DrobIt instance and set the attributes 
 		*/
 		DropItPacket hashPacket=new DropItPacket(Constants.FND_SUSC.toString());
-		hashPacket.setAttribute(Constants.FILE_NAME_HASH.toString(), hash);
+		hashPacket.setAttribute(Constants.KEY_ID.toString(), keyId);
 		
 		ChannelFactory factory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool(), 3);
