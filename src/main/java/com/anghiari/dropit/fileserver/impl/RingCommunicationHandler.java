@@ -18,6 +18,8 @@ public class RingCommunicationHandler extends SimpleChannelHandler {
         DropItPacket pkt = (DropItPacket)e.getMessage();
         String method =pkt.getMethod();
         
+        System.out.println("RingCommunicationHandler came here "+method );
+        
         if(Constants.PING.toString().equalsIgnoreCase(method)){
         	System.out.println("RingCommunicationHandler came here "+method );
             PongOperation pongOperation=new PongOperation(ctx,e);

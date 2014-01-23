@@ -32,9 +32,7 @@ public class FileServerNodeImpl implements FileServerNode {
 	public void bootServer(FileNode node) {
 		this.node = node;
 		successors = new ArrayList<FileNode>();
-		successors.add(FileNodeList.getFileNodeList().get(1));
-
-		// initSuccessors();
+		initSuccessors();
 		initFingers();
 
 		/**
@@ -116,9 +114,9 @@ public class FileServerNodeImpl implements FileServerNode {
 		}
 
 		/**
-		 * Bind and start to accept incoming connections.
+		 * Bind and start the ring communication
 		 */
-		Channel acceptor_ring = this.bootstrap.bind(new InetSocketAddress(node
+		Channel acceptor_ring = this.bootstrap_ring.bind(new InetSocketAddress(node
 				.getIp(), node.getPort_ring()));
 
 		if (acceptor_ring.isBound()) {
@@ -146,16 +144,43 @@ public class FileServerNodeImpl implements FileServerNode {
 
 	private void initSuccessors() {
 		/* TEMPORARY IMPLEMENTATION. */
-		successors = new ArrayList<FileNode>();
-		for (int i = 0; i < Constants.SUCCESSOR_LIST_SIZE; i++) {
-			successors.add(node);
+		String ip = "127.0.0.1";
+		
+        int numberOfNodes = 5;
+        int[] intPorts = Configurations.intPorts;
+        int[] extPorts = Configurations.extPorts;
+        int[] keys = Configurations.fileNodeKeys;
+
+        long myKey = node.getKey().getHashId();
+        FileNode[] nodes = new FileNode[numberOfNodes];
+        
+        for(int i = 0; i < numberOfNodes; i++){
+			nodes[i] = new FileNode(ip, extPorts[i], intPorts[i], new KeyId(keys[i]));
+        }
+        
+        int pos = 0;
+        for(int i = 0; i<numberOfNodes; i++){
+        	if(myKey==keys[i]){
+        		pos = i+1;
+        		break;
+        	}
+        }
+        
+        successors.add(pos<numberOfNodes?nodes[pos++]:nodes[pos++ - numberOfNodes]);
+        successors.add(pos<numberOfNodes?nodes[pos++]:nodes[pos++ - numberOfNodes]);
+        successors.add(pos<numberOfNodes?nodes[pos++]:nodes[pos++ - numberOfNodes]);
+        
+        System.out.println("My Successors");
+        for (int i = 0; i < Constants.SUCCESSOR_LIST_SIZE; i++) {
+			System.out.println(" "+successors.get(i).getPort() + "with key "+ successors.get(i).getKey().getHashId());
 		}
 	}
+
 
 	private void initRunAtInterval() {
 
 		FileServerRunAtInterval intervalExecutor = new FileServerRunAtInterval(
-				5000, this);
+				1000, this);
 
 		intervalExecutor.start();
 	}
@@ -266,7 +291,7 @@ public class FileServerNodeImpl implements FileServerNode {
     }
     
     public void sendMessage(DropItPacket packet, FileNode node, final SimpleChannelHandler handler){
-        System.out.println("Sending MSG; Method:" + packet.getMethod()+ ", Node IP:"+ node.getIp() +", Port:" + node.getPort());
+        System.out.println("Sending MSG From Overloaded Method:" + packet.getMethod()+ ", Node IP:"+ node.getIp() +", Port:" + node.getPort_ring());
 
         Executor bossPool = Executors.newCachedThreadPool();
         Executor workerPool = Executors.newCachedThreadPool();
@@ -282,7 +307,9 @@ public class FileServerNodeImpl implements FileServerNode {
         ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
         clientBootstrap.setPipelineFactory(pipelineFactory);
 
-        InetSocketAddress addressToConnectTo = new InetSocketAddress(node.getIp(), node.getPort());
+        System.out.println("ring port line 314 " + node.getPort_ring());
+        
+        InetSocketAddress addressToConnectTo = new InetSocketAddress(node.getIp(), node.getPort_ring());
         ChannelFuture cf = clientBootstrap.connect(addressToConnectTo);
         final DropItPacket dropPacket = packet;
         cf.addListener(new ChannelFutureListener(){
@@ -298,7 +325,7 @@ public class FileServerNodeImpl implements FileServerNode {
         
     }
 
-    private FileNode getSuccessor(){
+    public FileNode getSuccessor(){
         return successors.get(0);
     }
 
@@ -328,8 +355,8 @@ public class FileServerNodeImpl implements FileServerNode {
 	public void stabilize() {
 		
 		DropItPacket packet = new DropItPacket(Constants.PING.toString());
-		this.sendMessage(packet, node, new RingCommunicationHandler());
-		System.out.println("Stabilized");
+		this.sendMessage(packet, this.getSuccessor(), new RingCommunicationHandler());
+		System.out.println("Stabilized "+this.node.getPort_ring());
 	}
 
 	/**

@@ -25,7 +25,7 @@ public class FileServerRunner {
         FileNode node;
         FileServerNodeImpl fileServer;
 
-        for(int i = 0; i < numberOfNodes; i++){
+        for(int i = 0; i < numberOfNodes-1; i++){
             node = new FileNode(ip, extPorts[i], intPorts[i], new KeyId(keys[i]));
             fileServer = new FileServerNodeImpl();
             fileServer.bootServer(node);
@@ -35,8 +35,8 @@ public class FileServerRunner {
         op.sendRequest();
 
         
-        PingOperation op1=new PingOperation(new FileServerNodeImpl(),ip,8001);
-        op1.sendRequest(new RingCommunicationHandler());
+//        PingOperation op1=new PingOperation(new FileServerNodeImpl(),ip,8001);
+//        op1.sendRequest(new RingCommunicationHandler());
         
         //fileServer2.pingSuccessor(ip, 12500);
     	
