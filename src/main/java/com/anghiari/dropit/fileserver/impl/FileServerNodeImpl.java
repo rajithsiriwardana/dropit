@@ -1,35 +1,22 @@
 package com.anghiari.dropit.fileserver.impl;
 
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.anghiari.dropit.commons.*;
-
+import com.anghiari.dropit.fileserver.FileServerNode;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.codec.serialization.ClassResolvers;
 import org.jboss.netty.handler.codec.serialization.ObjectDecoder;
 import org.jboss.netty.handler.codec.serialization.ObjectEncoder;
 
-import com.anghiari.dropit.commons.Constants;
-import com.anghiari.dropit.commons.DropItPacket;
-import com.anghiari.dropit.commons.FileNode;
-import com.anghiari.dropit.commons.FileNodeList;
-import com.anghiari.dropit.commons.KeyId;
-import com.anghiari.dropit.fileserver.FileServerNode;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FileServerNodeImpl implements FileServerNode {
 
@@ -139,11 +126,11 @@ public class FileServerNodeImpl implements FileServerNode {
 				.getIp(), node.getPort_ring()));
 
 		if (acceptor_ring.isBound()) {
-			System.err.println("+++ SERVER - bound to *: " + node.getPort());
+			System.err.println("+++ SERVER - bound to *: " + node.getPort_ring());
 
 		} else {
 			System.err.println("+++ SERVER - Failed to bind to *: "
-					+ node.getPort());
+					+ node.getPort_ring());
 			this.bootstrap_ring.releaseExternalResources();
 		}
 
@@ -164,7 +151,7 @@ public class FileServerNodeImpl implements FileServerNode {
 	private void initSuccessors() {
 		/* TEMPORARY IMPLEMENTATION. */
 		successors = new ArrayList<FileNode>();
-		for (int i = 0; i < Constants.KEY_SPACE; i++) {
+		for (int i = 0; i < Constants.SUCCESSOR_LIST_SIZE; i++) {
 			successors.add(node);
 		}
 	}
