@@ -2,11 +2,15 @@ package com.anghiari.dropit.fileserver.impl;
 
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
+import com.anghiari.dropit.operations.AckStoreOperation;
 import com.anghiari.dropit.operations.PongOperation;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 /**
  * User: amila
@@ -39,7 +43,18 @@ public class FileHandler extends SimpleChannelHandler {
 			new NodeConnectionHandler().handleResponse((String[]) pkt
 					.getAttribute(Constants.KEY_ID.toString()));
 		}
-
+        else if(Constants.STORE.toString().equalsIgnoreCase(method)){
+            byte[] fileByteArray=pkt.getData();
+            //Modify path with the folder to save files
+            File file = new File((String)pkt.getAttribute(Constants.FILE_NAME.toString()));
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileOutputStream stream = new FileOutputStream(file);
+            stream.write(fileByteArray);
+            AckStoreOperation ackStoreOperation=new AckStoreOperation(ctx,e);
+            ackStoreOperation.sendResponse();
+        }
 		super.messageReceived(ctx, e);
 	}
 
