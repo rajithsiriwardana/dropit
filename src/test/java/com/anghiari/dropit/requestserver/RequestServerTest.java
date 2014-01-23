@@ -36,40 +36,26 @@ public class RequestServerTest {
 
         ChannelFactory factory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool(), 3);
-        // Create the bootstrap
         ClientBootstrap bootstrap = new ClientBootstrap(factory);
-        // Create the global ChannelGroup
         ChannelGroup channelGroup = new DefaultChannelGroup(ServerClient.class.getName());
-        // Create the associated Handler
         ServerClientHandler handler = new ServerClientHandler(packet);
 
-        // Add the handler to the pipeline and set some options
         bootstrap.getPipeline().addLast("handler", handler);
         bootstrap.setOption("tcpNoDelay", true);
         bootstrap.setOption("keepAlive", true);
         bootstrap.setOption("reuseAddress", true);
         bootstrap.setOption("connectTimeoutMillis", 100);
 
-        // *** Start the Netty running ***
-        System.out.println("*** Start the Netty running ***");
-        // Connect to the server, wait for the connection and get back the
-        // channel
         Channel channel = bootstrap.connect(new InetSocketAddress("localhost", 8005))
                 .awaitUninterruptibly().getChannel();
-        // Add the parent channel to the group
         channelGroup.add(channel);
-        // Wait for the response from the fileServer
+
         DropItPacket respondHashPacket = handler.getRespond();
 
-        // *** Start the Netty shutdown ***
-
-        // Now close all channels
-        System.out.println("close channelGroup");
         channelGroup.close().awaitUninterruptibly();
-        // Now release resources
-        System.out.println("close external resources");
         factory.releaseExternalResources();
 
+        //TODO complete test
 
     }
 }
