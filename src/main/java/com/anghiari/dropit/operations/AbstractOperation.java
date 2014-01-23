@@ -34,4 +34,9 @@ public abstract class AbstractOperation {
     public void sendRequest(){
         fileServer.sendMessage(this.packet,new FileNode(ip,port));
     }
+    
+    //Sending newly initiated messages
+    public void sendRequest(SimpleChannelHandler handler){
+        fileServer.sendMessage(this.packet,new FileNode(ip,port),handler);
+    }
 }
