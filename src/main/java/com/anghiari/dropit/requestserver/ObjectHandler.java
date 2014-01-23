@@ -21,8 +21,6 @@ public class ObjectHandler extends SimpleChannelHandler {
     private static final Logger logger = Logger.getLogger(ObjectHandler.class
             .getName());
 
-    private DropItPacket dropItPacket;
-
     /**
      * Channel Group
      */
@@ -58,19 +56,18 @@ public class ObjectHandler extends SimpleChannelHandler {
         }
     }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
-        logger.log(Level.WARNING, "Unexpected exception from downstream.", e
-                .getCause());
-        System.out.println(e.toString());
-        Channels.close(e.getChannel());
-    }
-
     public void sendResponse(ChannelHandlerContext ctx, MessageEvent e, DropItPacket packet){
         Channel channel = e.getChannel();
         ChannelFuture channelFuture = Channels.future(e.getChannel());
         ChannelEvent responseEvent =
                 new DownstreamMessageEvent(channel, channelFuture, packet, channel.getRemoteAddress());
         ctx.sendDownstream(responseEvent);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) {
+        logger.log(Level.WARNING, "Unexpected exception from downstream.", e
+                .getCause());
+        Channels.close(e.getChannel());
     }
 }

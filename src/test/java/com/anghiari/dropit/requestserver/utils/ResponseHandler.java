@@ -1,4 +1,4 @@
-package com.anghiari.dropit.requestserver;
+package com.anghiari.dropit.requestserver.utils;
 
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
@@ -10,7 +10,7 @@ import org.jboss.netty.channel.SimpleChannelHandler;
  * @author rajith
  * @version ${Revision}
  */
-public class ResponseHandler  extends SimpleChannelHandler {
+public class ResponseHandler extends SimpleChannelHandler {
 
     private DropItPacket packet;
 
