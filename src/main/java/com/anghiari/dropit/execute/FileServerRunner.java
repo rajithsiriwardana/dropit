@@ -15,6 +15,7 @@ public class FileServerRunner {
 
         String ip = "127.0.0.1";
         int port = 14500;
+        int port_ring = 15500;
         int key = 100;
         int numberOfNodes = Integer.parseInt(args[0]);
 
@@ -22,7 +23,7 @@ public class FileServerRunner {
         FileServerNodeImpl fileServer;
 
         for(int i = 0; i < numberOfNodes; i++){
-            node = new FileNode(ip, port++, new KeyId(key++));
+            node = new FileNode(ip, port++, port_ring++, new KeyId(key++));
             fileServer = new FileServerNodeImpl();
             fileServer.bootServer(node);
         }

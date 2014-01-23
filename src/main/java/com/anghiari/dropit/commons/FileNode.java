@@ -4,6 +4,7 @@ public class FileNode {
 
     private String ip;
     private int port;
+    private int port_ring;
     private KeyId key;
 
     public FileNode(String ip, int port){
@@ -11,11 +12,18 @@ public class FileNode {
         this.port = port;
     }
 
-	public FileNode(String ip, int port, KeyId key){
-		this.ip = ip;
-		this.port = port;
-		this.key = key;
-	}
+    public FileNode(String ip, int port, int port_ring, KeyId key){
+        this.ip = ip;
+        this.port = port;
+        this.port_ring = port_ring;
+        this.key = key;
+    }
+
+//	public FileNode(String ip, int port, KeyId key){
+//		this.ip = ip;
+//		this.port = port;
+//		this.key = key;
+//	}
 
 	public String getIp() {
 		return ip;
@@ -48,5 +56,9 @@ public class FileNode {
             return other.getKey().getHashId() == key.getHashId();
         }
         return false;
+    }
+
+    public int getPort_ring() {
+        return port_ring;
     }
 }
