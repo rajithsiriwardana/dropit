@@ -57,7 +57,7 @@ public class ObjectHandler extends SimpleChannelHandler {
                 KeyId id = DHTUtils
                         .generateKeyId((String) pptmp.getAttribute(Constants.FILE_NAME.toString()));
                 ServerClient client = new ServerClient();
-
+                //TODO: handle sendHash method
                 sendResponse(ctx, e, client.sendHash(id, Constants.valueOf(pptmp.getMethod()),
                         (String) pptmp.getAttribute(Constants.FILE_PATH.toString()),
                         (String) pptmp.getAttribute(Constants.FILE_NAME.toString())));
@@ -69,17 +69,14 @@ public class ObjectHandler extends SimpleChannelHandler {
 
                 //get the list from the gossip msg
                 ArrayList<String> receivedList = (ArrayList<String>) pptmp.getAttribute(Constants.GOS_LIST.toString());
-//                if (receivedList.size() > 0)
-//                    System.out.println("Received " + receivedList.get(0) + " size" + receivedList.size());
                 //merge two lists
                 for (String fileName : receivedList) {
                     if (!this.activeFilesList.contains(fileName)) {
                         this.activeFilesList.add(fileName);
                     }
                 }
- /*               for(String file : this.activeFilesList){
-                    System.out.println(">>>My list: " + file);
-                }*/
+                System.out.println("Received size: " + receivedList.size() + " | Size after gossiping: " + activeFilesList.size());
+
             } else if (Constants.SEARCH.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
 
@@ -98,7 +95,7 @@ public class ObjectHandler extends SimpleChannelHandler {
                 PongOperation pongOperation = new PongOperation(ctx, e);
                 pongOperation.sendResponse();
             } else {
-                System.out.println("packet received! " + pptmp.getMethod() + " Yet no reply!");
+                System.out.println(pptmp.getMethod() + " received! Yet no reply!");
                 super.messageReceived(ctx, e);
             }
         }
