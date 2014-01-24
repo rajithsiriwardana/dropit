@@ -30,6 +30,7 @@ public class RequestNodeImpl implements RequestNode {
 
     public void start(String ip, int port, int nbconn) {
         this.activeFilesList = new ArrayList<String>();
+        this.activeFilesList.add("random" + new Random().nextInt() + ".txt");
 
         // Start server with Nb of active threads = 2*NB CPU + 1 as maximum.
         ChannelFactory factory = new NioServerSocketChannelFactory(
@@ -40,7 +41,7 @@ public class RequestNodeImpl implements RequestNode {
         ServerBootstrap bootstrap = new ServerBootstrap(factory);
         // Create the global ChannelGroup
         final ChannelGroup channelGroup = new DefaultChannelGroup(RequestNodeImpl.class.getName());
-        this.objectHandler = new ObjectHandler(channelGroup, new ArrayList<String>());
+        this.objectHandler = new ObjectHandler(channelGroup, this.activeFilesList);
 
         // Create the blockingQueue to wait for a limited number of client
         BlockingQueue<Integer> answer = new LinkedBlockingQueue<Integer>();
@@ -85,7 +86,7 @@ public class RequestNodeImpl implements RequestNode {
 
         Channel acceptor = this.bootstrap_rs.bind(new InetSocketAddress(ip, port + 1));
         if (acceptor.isBound()) {
-            System.err.println("+++ SERVER - bound to " +ip + ":" + (port));
+            System.err.println("+++ SERVER - bound to " + ip + ":" + (port));
 
         } else {
             System.err.println("+++ SERVER - Failed to bind to *: "
@@ -93,8 +94,8 @@ public class RequestNodeImpl implements RequestNode {
             this.bootstrap_rs.releaseExternalResources();
         }
         // *** Start the Netty running ***
-        /*System.out.println("Gossip server started");
-        initGossipProtocol();*/
+        System.out.println("Gossip server started");
+        initGossipProtocol();
     }
 
     private void initGossipProtocol() {

@@ -60,12 +60,16 @@ public class ObjectHandler extends SimpleChannelHandler {
                 System.out.println("GOSSIP received");
                 //get the list from the gossip msg
                 ArrayList<String> receivedList = (ArrayList<String>) pptmp.getAttribute(Constants.GOS_LIST.toString());
-                System.out.println("Received" + receivedList.get(0));
+                System.out.println("Received " + receivedList.get(0) + " size" + receivedList.size());
                 //merge two lists
-                //duplicates are not considered
                 for (String fileName : receivedList) {
-                    this.activeFilesList.add(fileName);
+                    if (!this.activeFilesList.contains(fileName)) {
+                        this.activeFilesList.add(fileName);
+                    }
                 }
+//                for(String file : this.activeFilesList){
+//                    System.out.println(">>>My list: " + file);
+//                }
             } else if (Constants.GET_FILENODE.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 DropItPacket packet = new DropItPacket(Constants.RES_GET_FILENODE.toString());
                 packet.setAttribute(Constants.INET_ADDRESS.toString(), NodeFactory.getNode());
