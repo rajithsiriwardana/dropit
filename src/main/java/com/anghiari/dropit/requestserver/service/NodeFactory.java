@@ -10,8 +10,8 @@ public class NodeFactory {
 
     public static String[] getNode() throws IOException {
         final String[] args = new String[2];
-        args[0] = "192.248.8.241";
-        args[1] = "14501";
+        args[0] = "192.168.43.173";
+        args[1] = "14505";
         return args;
     }
 

@@ -50,19 +50,23 @@ public class ObjectHandler extends SimpleChannelHandler {
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         DropItPacket pptmp = (DropItPacket) e.getMessage();
         if (pptmp != null) {
-            if (Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod())) {
+            if (Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod()) ||
+                    Constants.GET.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 KeyId id = DHTUtils
                         .generateKeyId((String) pptmp.getAttribute(Constants.FILE_NAME.toString()));
                 ServerClient client = new ServerClient();
                 System.out.println("PUT received!");
-                sendResponse(ctx, e, client.sendHash(id));
+                sendResponse(ctx, e, client.sendHash(id, Constants.valueOf(pptmp.getMethod()),
+                        (String) pptmp.getAttribute(Constants.FILE_PATH.toString()),
+                        (String) pptmp.getAttribute(Constants.FILE_NAME.toString())));
                 //add file name to the list
                 this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
             } else if (Constants.GOSSIP.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println("GOSSIP received");
                 //get the list from the gossip msg
                 ArrayList<String> receivedList = (ArrayList<String>) pptmp.getAttribute(Constants.GOS_LIST.toString());
-                System.out.println("Received " + receivedList.get(0) + " size" + receivedList.size());
+                if (receivedList.size() > 0)
+                    System.out.println("Received " + receivedList.get(0) + " size" + receivedList.size());
                 //merge two lists
                 for (String fileName : receivedList) {
                     if (!this.activeFilesList.contains(fileName)) {

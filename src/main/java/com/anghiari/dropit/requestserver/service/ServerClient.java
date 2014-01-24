@@ -3,34 +3,24 @@ package com.anghiari.dropit.requestserver.service;
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.commons.KeyId;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 
 /**
  * @author madhawa
- * 
  */
 public class ServerClient {
-	String host;
-	int port;
+    String host;
+    int port;
 
-	public DropItPacket sendHash(KeyId keyId) throws Exception {
-		String[] hostdetails = NodeFactory.getNode();
-		
-		this.host = hostdetails[0];
-		this.port = Integer.parseInt(hostdetails[1]);
-		
+    public DropItPacket sendHash(KeyId keyId, Constants method, String path, String fileName) throws Exception {
+        String[] hostdetails = NodeFactory.getNode();
+
+        this.host = hostdetails[0];
+        this.port = Integer.parseInt(hostdetails[1]);
+
 		/*
 		 * create DrobIt instance and set the attributes 
 		*/
-		DropItPacket hashPacket=new DropItPacket(Constants.FND_SUSC.toString());
+		/*DropItPacket hashPacket=new DropItPacket(Constants.FND_SUSC.toString());
 		hashPacket.setAttribute(Constants.KEY_ID.toString(), keyId);
 		
 		ChannelFactory factory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
@@ -67,7 +57,22 @@ public class ServerClient {
 		channelGroup.close().awaitUninterruptibly();
 		// Now release resources
 		System.out.println("close external resources");
-		factory.releaseExternalResources();
-		return respondHashPacket;
-	}
+		factory.releaseExternalResources();*/
+        DropItPacket respondHashPacket = null;
+        if (Constants.PUT.toString().equalsIgnoreCase(method.toString())) {
+            respondHashPacket = new DropItPacket(Constants.RES_PUT.toString());
+            respondHashPacket.setAttribute(Constants.NODE_IP.toString(), host);
+            respondHashPacket.setAttribute(Constants.NODE_PORT.toString(), port);
+            respondHashPacket.setAttribute(Constants.FILE_PATH.toString(), path);
+            respondHashPacket.setAttribute(Constants.FILE_NAME.toString(), fileName);
+        } else if (Constants.GET.toString().equalsIgnoreCase(method.toString())) {
+            respondHashPacket = new DropItPacket(Constants.RES_GET.toString());
+            respondHashPacket.setAttribute(Constants.NODE_IP.toString(), host);
+            respondHashPacket.setAttribute(Constants.NODE_PORT.toString(), port);
+            respondHashPacket.setAttribute(Constants.FILE_PATH.toString(), path);
+            respondHashPacket.setAttribute(Constants.FILE_NAME.toString(), fileName);
+        }
+        System.out.println("Packet created! " + respondHashPacket.getAttribute(Constants.NODE_IP.toString()));
+        return respondHashPacket;
+    }
 }
