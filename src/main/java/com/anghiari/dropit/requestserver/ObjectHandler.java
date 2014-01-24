@@ -61,9 +61,10 @@ public class ObjectHandler extends SimpleChannelHandler {
                 sendResponse(ctx, e, client.sendHash(id, Constants.valueOf(pptmp.getMethod()),
                         (String) pptmp.getAttribute(Constants.FILE_PATH.toString()),
                         (String) pptmp.getAttribute(Constants.FILE_NAME.toString())));
-                //add file name to the list
-                this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
-
+                //add file name to the list only if it's a PUT method
+                if (Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                    this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
+                }
             } else if (Constants.GOSSIP.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
 
