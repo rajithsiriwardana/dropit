@@ -75,8 +75,8 @@ public class RequestNodeImpl implements RequestNode {
                 );
             }
         });
-/*
         Channel acceptor = this.bootstrap_rs.bind(new InetSocketAddress(ip, port + 1));
+        channelGroup.add(acceptor);
         if (acceptor.isBound()) {
             System.err.println("+++ SERVER - bound to " + ip + ":" + (port + 1));
 
@@ -87,7 +87,7 @@ public class RequestNodeImpl implements RequestNode {
         }
         // *** Start the Netty running ***
         System.out.println("Gossip server started");
-        initGossipProtocol();*/
+        initGossipProtocol();
     }
 
     private void initGossipProtocol() {
