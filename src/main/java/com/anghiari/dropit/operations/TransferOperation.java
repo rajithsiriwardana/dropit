@@ -9,8 +9,10 @@ import org.jboss.netty.channel.MessageEvent;
  * @author: sunimal
  */
 public class TransferOperation extends AbstractOperation {
-    public TransferOperation(ChannelHandlerContext channelHandlerContext, MessageEvent evt) {
+    public TransferOperation(ChannelHandlerContext channelHandlerContext, MessageEvent evt, byte[] filedata, String filename) {
         packet = new DropItPacket(Constants.TRANSFER.toString());
+        packet.setAttribute(Constants.FILE_NAME.toString(), filename);
+        packet.setData(filedata);
         ctx = channelHandlerContext;
         e = evt;
     }
