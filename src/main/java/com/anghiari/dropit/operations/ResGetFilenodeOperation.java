@@ -2,16 +2,15 @@ package com.anghiari.dropit.operations;
 
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
+import com.anghiari.dropit.commons.FileNode;
 
 public class ResGetFilenodeOperation extends AbstractOperation {
-	private String host;
-	private int port;
+	private FileNode node;
+	private DropItPacket responsePacket;
 
 	public ResGetFilenodeOperation(DropItPacket packet) {
-		String[] data = (String[]) packet.getAttribute(Constants.KEY_ID
-				.toString());
-		host = data[0];
-		port = Integer.parseInt(data[1]);
+		node = (FileNode) packet
+				.getAttribute(Constants.INET_ADDRESS.toString());
 
 	}
 

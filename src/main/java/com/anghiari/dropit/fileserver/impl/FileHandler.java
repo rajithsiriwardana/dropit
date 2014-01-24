@@ -4,7 +4,10 @@ import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.operations.AckStoreOperation;
 import com.anghiari.dropit.operations.PongOperation;
+import com.anghiari.dropit.operations.ReqJoinNodeOperation;
+import com.anghiari.dropit.operations.ResJoinNodeOperation;
 import com.anghiari.dropit.operations.TransferOperation;
+
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -67,6 +70,10 @@ public class FileHandler extends SimpleChannelHandler {
             bufferedInputStream.read(filedata, 0, filedata.length);
             TransferOperation transferOperation=new TransferOperation(ctx,e);
             transferOperation.sendResponse();
+        }else if(Constants.REQ_JOIN_NODE.toString().equalsIgnoreCase(method)){
+        	new ReqJoinNodeOperation(pkt).sendResponse();
+        }else if (Constants.RES_JOIN_NODE.toString().equalsIgnoreCase(method)){
+        	new ResJoinNodeOperation(pkt).sendRequest();
         }
 		super.messageReceived(ctx, e);
 	}
