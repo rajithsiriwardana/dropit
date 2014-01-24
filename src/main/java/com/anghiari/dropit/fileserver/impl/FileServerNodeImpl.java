@@ -278,19 +278,16 @@ public class FileServerNodeImpl implements FileServerNode {
         ChannelFuture cf = clientBootstrap.connect(addressToConnectTo);
         final DropItPacket dropPacket = packet;
         try{
-//	        cf.addListener(new ChannelFutureListener(){
-//	            public void operationComplete(ChannelFuture future) throws Exception {
-//	                // check to see if we succeeded
-//	                if(future.isSuccess()) {
-//	                    Channel channel = future.getChannel();
-//	                    channel.write(dropPacket);
-//	                    // asynchronous
-//	                }
-//	            }
-//	        });
-            cf.awaitUninterruptibly();
-            Channel channel = cf.getChannel();
-            channel.write(dropPacket);
+	        cf.addListener(new ChannelFutureListener(){
+	            public void operationComplete(ChannelFuture future) throws Exception {
+	                // check to see if we succeeded
+	                if(future.isSuccess()) {
+	                    Channel channel = future.getChannel();
+	                    channel.write(dropPacket);
+	                    // asynchronous
+	                }
+	            }
+	        });
         }catch(Exception e){
         	//Handle Exception
         }
