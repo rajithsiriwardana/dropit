@@ -9,7 +9,6 @@ import com.anghiari.dropit.operations.ResJoinNodeOperation;
 import com.anghiari.dropit.operations.TransferOperation;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 
@@ -68,7 +67,8 @@ public class FileHandler extends SimpleChannelHandler {
             FileInputStream fileInputStream = new FileInputStream(file);
             BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
             bufferedInputStream.read(filedata, 0, filedata.length);
-            TransferOperation transferOperation=new TransferOperation(ctx,e);
+            bufferedInputStream.close();
+            TransferOperation transferOperation=new TransferOperation(ctx,e, filedata, file.getName());
             transferOperation.sendResponse();
         }else if(Constants.REQ_JOIN_NODE.toString().equalsIgnoreCase(method)){
         	new ReqJoinNodeOperation(pkt).sendResponse();
