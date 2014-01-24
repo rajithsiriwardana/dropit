@@ -52,40 +52,53 @@ public class ObjectHandler extends SimpleChannelHandler {
         if (pptmp != null) {
             if (Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod()) ||
                     Constants.GET.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                System.out.println(pptmp.getMethod() + " received!");
+
                 KeyId id = DHTUtils
                         .generateKeyId((String) pptmp.getAttribute(Constants.FILE_NAME.toString()));
                 ServerClient client = new ServerClient();
-                System.out.println("PUT received!");
+
                 sendResponse(ctx, e, client.sendHash(id, Constants.valueOf(pptmp.getMethod()),
                         (String) pptmp.getAttribute(Constants.FILE_PATH.toString()),
                         (String) pptmp.getAttribute(Constants.FILE_NAME.toString())));
                 //add file name to the list
                 this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
+
             } else if (Constants.GOSSIP.toString().equalsIgnoreCase(pptmp.getMethod())) {
-                System.out.println("GOSSIP received");
+                System.out.println(pptmp.getMethod() + " received!");
+
                 //get the list from the gossip msg
                 ArrayList<String> receivedList = (ArrayList<String>) pptmp.getAttribute(Constants.GOS_LIST.toString());
-                if (receivedList.size() > 0)
-                    System.out.println("Received " + receivedList.get(0) + " size" + receivedList.size());
+//                if (receivedList.size() > 0)
+//                    System.out.println("Received " + receivedList.get(0) + " size" + receivedList.size());
                 //merge two lists
                 for (String fileName : receivedList) {
                     if (!this.activeFilesList.contains(fileName)) {
                         this.activeFilesList.add(fileName);
                     }
                 }
-//                for(String file : this.activeFilesList){
-//                    System.out.println(">>>My list: " + file);
-//                }
+ /*               for(String file : this.activeFilesList){
+                    System.out.println(">>>My list: " + file);
+                }*/
+            } else if (Constants.SEARCH.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                System.out.println(pptmp.getMethod() + " received!");
+
+                DropItPacket packet = new DropItPacket(Constants.RES_SEARCH.toString());
+                packet.setAttribute(Constants.SEARCH_RESULTS.toString(), activeFilesList);
+                sendResponse(ctx, e, packet);
             } else if (Constants.GET_FILENODE.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                System.out.println(pptmp.getMethod() + " received!");
+
                 DropItPacket packet = new DropItPacket(Constants.RES_GET_FILENODE.toString());
                 packet.setAttribute(Constants.INET_ADDRESS.toString(), NodeFactory.getNode());
                 sendResponse(ctx, e, packet);
             } else if (Constants.PING.toString().equalsIgnoreCase(pptmp.getMethod())) {
-                System.out.println("PING received.");
+                System.out.println(pptmp.getMethod() + " received!");
+
                 PongOperation pongOperation = new PongOperation(ctx, e);
                 pongOperation.sendResponse();
             } else {
-                System.out.println("packet awa! " + pptmp.getMethod() + " Yet no reply!");
+                System.out.println("packet received! " + pptmp.getMethod() + " Yet no reply!");
                 super.messageReceived(ctx, e);
             }
         }
