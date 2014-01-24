@@ -20,30 +20,27 @@ import java.util.concurrent.Executors;
 
 /**
  * @author rajith
+ * @author gayashan
  * @version ${Revision}
  */
 public class RequestNodeImpl implements RequestNode {
-    private ServerBootstrap bootstrap_rs;
+    private ServerBootstrap exBootstrap;  //external communication
+    private ServerBootstrap inBootstrap;   //internal communication, within request server nodes
     private ArrayList<String> activeFilesList;
     private ArrayList<InetSocketAddress> activeRSList;
-    private ObjectHandler objectHandler;
 
     public void start(String ip, int port, int nbconn) {
         this.activeFilesList = new ArrayList<String>();
         //temporary - populate the files list
         this.activeFilesList.add("random" + new Random().nextInt() + ".txt");
+        this.activeFilesList.add("random" + new Random().nextInt() + ".txt");
 
-        // Start server with Nb of active threads = 2*NB CPU + 1 as maximum.
-        ChannelFactory factory = new NioServerSocketChannelFactory(
-                Executors.newCachedThreadPool(),
-                Executors.newCachedThreadPool(), Runtime.getRuntime()
-                .availableProcessors() * 2 + 1);
         final ChannelGroup channelGroup = new DefaultChannelGroup(RequestNodeImpl.class.getName());
-        ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
+        this.exBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool()));
 
-        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+        exBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             public ChannelPipeline getPipeline() throws Exception {
                 return Channels.pipeline(
                         new CompatibleObjectDecoder(),
@@ -55,18 +52,17 @@ public class RequestNodeImpl implements RequestNode {
 
         // *** Start the Netty running ***
         System.out.println("DropIt server started");
-        // Create the monitor
 
         // Add the parent channel to the group
-        Channel channel = bootstrap.bind(new InetSocketAddress(ip, port));
+        Channel channel = exBootstrap.bind(new InetSocketAddress(ip, port));
         channelGroup.add(channel);
 
-        // Setup communication between the RequestServer nodes
-        this.bootstrap_rs = new ServerBootstrap(new NioServerSocketChannelFactory(
+        // Setup communication between the RequestServer nodes for gossiping
+        this.inBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool()));
 
-        this.bootstrap_rs.setPipelineFactory(new ChannelPipelineFactory() {
+        this.inBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             public ChannelPipeline getPipeline() throws Exception {
                 return Channels.pipeline(
                         new CompatibleObjectDecoder(),//CompatibleObjectDecoder might not work if the client side is not using netty CompatibleObjectDecoder for decoding.
@@ -75,15 +71,16 @@ public class RequestNodeImpl implements RequestNode {
                 );
             }
         });
-        Channel acceptor = this.bootstrap_rs.bind(new InetSocketAddress(ip, port + 1));
+
+        Channel acceptor = this.inBootstrap.bind(new InetSocketAddress(ip, port + 1));
         channelGroup.add(acceptor);
         if (acceptor.isBound()) {
-            System.err.println("+++ SERVER - bound to " + ip + ":" + (port + 1));
+            System.err.println("GOSSIP SERVER - bound to " + ip + ":" + (port + 1));
 
         } else {
-            System.err.println("+++ SERVER - Failed to bind to *: "
+            System.err.println("GOSSIP SERVER - Failed to bind to *: "
                     + (port + 1));
-            this.bootstrap_rs.releaseExternalResources();
+            this.inBootstrap.releaseExternalResources();
         }
         // *** Start the Netty running ***
         System.out.println("Gossip server started");
@@ -96,7 +93,7 @@ public class RequestNodeImpl implements RequestNode {
     }
 
     public void startGossiping() {
-        System.out.println("gossiping");
+//        System.out.println("gossiping");
         DropItPacket packet = new DropItPacket(Constants.GOSSIP.toString());
         packet.setAttribute(Constants.GOS_LIST.toString(), this.activeFilesList);
         //select a request server node at random
