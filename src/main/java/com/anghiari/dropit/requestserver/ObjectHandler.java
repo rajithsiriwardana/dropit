@@ -3,6 +3,7 @@ package com.anghiari.dropit.requestserver;
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.commons.KeyId;
+import com.anghiari.dropit.operations.PongOperation;
 import com.anghiari.dropit.requestserver.service.DHTUtils;
 import com.anghiari.dropit.requestserver.service.NodeFactory;
 import com.anghiari.dropit.requestserver.service.ServerClient;
@@ -53,6 +54,7 @@ public class ObjectHandler extends SimpleChannelHandler {
                 KeyId id = DHTUtils
                         .generateKeyId((String) pptmp.getAttribute(Constants.FILE_NAME.toString()));
                 ServerClient client = new ServerClient();
+                System.out.println("PUT received!");
                 sendResponse(ctx, e, client.sendHash(id));
                 //add file name to the list
                 this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
@@ -74,7 +76,12 @@ public class ObjectHandler extends SimpleChannelHandler {
                 DropItPacket packet = new DropItPacket(Constants.RES_GET_FILENODE.toString());
                 packet.setAttribute(Constants.INET_ADDRESS.toString(), NodeFactory.getNode());
                 sendResponse(ctx, e, packet);
+            } else if (Constants.PING.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                System.out.println("PING received.");
+                PongOperation pongOperation = new PongOperation(ctx, e);
+                pongOperation.sendResponse();
             } else {
+                System.out.println("packet awa! " + pptmp.getMethod() + " Yet no reply!");
                 super.messageReceived(ctx, e);
             }
         }
