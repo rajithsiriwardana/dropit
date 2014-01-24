@@ -4,8 +4,8 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.handler.codec.serialization.ObjectDecoder;
-import org.jboss.netty.handler.codec.serialization.ObjectEncoder;
+import org.jboss.netty.handler.codec.serialization.CompatibleObjectDecoder;
+import org.jboss.netty.handler.codec.serialization.CompatibleObjectEncoder;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
@@ -58,8 +58,8 @@ public class PipelineFactory implements ChannelPipelineFactory {
             throw new Exception("End of server");
         }
         ChannelPipeline pipeline = Channels.pipeline();
-        pipeline.addLast("decoder", new ObjectDecoder());
-        pipeline.addLast("encoder", new ObjectEncoder());
+        pipeline.addLast("decoder", new CompatibleObjectDecoder());
+        pipeline.addLast("encoder", new CompatibleObjectEncoder());
         pipeline.addLast("pipelineExecutor", new ExecutionHandler(
                 pipelineExecutor));
 //        this.objectHandler = new ObjectHandler(channelGroup);

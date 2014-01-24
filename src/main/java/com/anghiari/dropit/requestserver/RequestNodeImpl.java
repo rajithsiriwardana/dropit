@@ -28,7 +28,7 @@ public class RequestNodeImpl implements RequestNode {
     private ArrayList<InetSocketAddress> activeRSList;
     private ObjectHandler objectHandler;
 
-    public void start(int port, int nbconn) {
+    public void start(String ip, int port, int nbconn) {
         this.activeFilesList = new ArrayList<String>();
 
         // Start server with Nb of active threads = 2*NB CPU + 1 as maximum.
@@ -65,7 +65,7 @@ public class RequestNodeImpl implements RequestNode {
         // Create the monitor
 
         // Add the parent channel to the group
-        Channel channel = bootstrap.bind(new InetSocketAddress(port));
+        Channel channel = bootstrap.bind(new InetSocketAddress(ip, port));
         channelGroup.add(channel);
 
         // Setup communication between the RequestServer nodes
@@ -83,9 +83,9 @@ public class RequestNodeImpl implements RequestNode {
             }
         });
 
-        Channel acceptor = this.bootstrap_rs.bind(new InetSocketAddress("127.0.0.1", port + 1));
+        Channel acceptor = this.bootstrap_rs.bind(new InetSocketAddress(ip, port + 1));
         if (acceptor.isBound()) {
-            System.err.println("+++ SERVER - bound to *: " + (port));
+            System.err.println("+++ SERVER - bound to " +ip + ":" + (port));
 
         } else {
             System.err.println("+++ SERVER - Failed to bind to *: "
@@ -93,8 +93,8 @@ public class RequestNodeImpl implements RequestNode {
             this.bootstrap_rs.releaseExternalResources();
         }
         // *** Start the Netty running ***
-        System.out.println("Gossip server started");
-        initGossipProtocol();
+        /*System.out.println("Gossip server started");
+        initGossipProtocol();*/
     }
 
     private void initGossipProtocol() {

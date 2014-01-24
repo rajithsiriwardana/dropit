@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public interface RequestNode {
 
-    public void start(int port, int nbconn);
+    public void start(String ip, int port, int nbconn);
 
     public void setActiveRSList(ArrayList<InetSocketAddress> activeRSList);
 }
