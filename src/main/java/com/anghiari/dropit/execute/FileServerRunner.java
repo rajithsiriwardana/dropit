@@ -17,22 +17,22 @@ public class FileServerRunner {
 
         String ip = "127.0.0.1";
 //        int numberOfNodes = Integer.parseInt(args[0]);
-        int numberOfNodes = 5;
+
         int[] intPorts = Configurations.intPorts;
         int[] extPorts = Configurations.extPorts;
         int[] keys = Configurations.fileNodeKeys;
-
+        int numberOfNodes = intPorts.length;
         FileNode node;
         FileServerNodeImpl fileServer;
 
-        for(int i = 0; i < numberOfNodes-1; i++){
+        for(int i = 0; i < numberOfNodes; i++){
             node = new FileNode(ip, extPorts[i], intPorts[i], new KeyId(keys[i]));
             fileServer = new FileServerNodeImpl();
             fileServer.bootServer(node);
         }
 
-        PingOperation op=new PingOperation(new FileServerNodeImpl(),ip, 14501);
-        op.sendRequest();
+//        PingOperation op=new PingOperation(new FileServerNodeImpl(),ip, 14501);
+//        op.sendRequest();
 
         
 //        PingOperation op1=new PingOperation(new FileServerNodeImpl(),ip,8001);

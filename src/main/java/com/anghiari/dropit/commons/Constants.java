@@ -13,7 +13,7 @@ public enum Constants {
 	/* Attribute keys */
 	FILE_NAME, KEY_ID, GOS_LIST, INET_ADDRESS, NODE_IP, NODE_PORT;
 
-	public static final int KEY_SPACE = 32;
+	public static final int KEY_SPACE = 4;
     public static final int SUCCESSOR_LIST_SIZE = 3;
 
 	public static final FileNode[] REQUEST_SERVER_LIST = new FileNode[2];

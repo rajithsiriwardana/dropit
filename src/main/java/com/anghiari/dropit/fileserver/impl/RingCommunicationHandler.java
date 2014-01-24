@@ -29,14 +29,15 @@ public class RingCommunicationHandler extends SimpleChannelHandler {
         DropItPacket pkt = (DropItPacket)e.getMessage();
         String method =pkt.getMethod();
         
-        System.out.println("RingCommunicationHandler came here "+method );
+//        System.out.println("RingCommunicationHandler came here "+method );
         
         if(Constants.PING.toString().equalsIgnoreCase(method)){
-        	System.out.println("RingCommunicationHandler came here "+method );
+//        	System.out.println("RingCommunicationHandler came here "+method );
             PongOperation pongOperation=new PongOperation(ctx,e);
             pongOperation.sendResponse();
         	//respondToPing(ctx,e);
         }
+
         super.messageReceived(ctx, e);
     }
 	
@@ -46,7 +47,7 @@ public class RingCommunicationHandler extends SimpleChannelHandler {
     	
     	//handling successor
     	handledNode.getSuccessors().remove(0);
-    	System.out.println("Reset the successor list, new size is" + handledNode.getSuccessors().size());
+//    	System.out.println("Reset the successor list, new size is" + handledNode.getSuccessors().size());
     	
     	System.out.println("Connection exception, server might be down");
     	Channels.close(e.getChannel());

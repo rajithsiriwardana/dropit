@@ -18,7 +18,8 @@ public class FileServerRunAtInterval extends AbstractRunAtInterval{
 
 	@Override
 	public void runClosure() {
-		this.fileServer.stabilize();
+		fileServer.stabilize();
+        fileServer.fixFingers();
 	}
 
 }

@@ -25,6 +25,7 @@ public class FileServerNodeImpl implements FileServerNode {
 	private FileNode predecessor;
 	private ArrayList<FileNode> successors;
 	private ArrayList<FileNode> fingers;
+    int nextFingerToUpdate;
 
 	private static final Logger logger = Logger
 			.getLogger(FileServerNodeImpl.class.getName());
@@ -32,6 +33,7 @@ public class FileServerNodeImpl implements FileServerNode {
 	public void bootServer(FileNode node) {
 		this.node = node;
 		setSuccessors(new ArrayList<FileNode>());
+        nextFingerToUpdate = 0;
 		initSuccessors();
 		initFingers();
 
@@ -146,10 +148,11 @@ public class FileServerNodeImpl implements FileServerNode {
 		/* TEMPORARY IMPLEMENTATION. */
 		String ip = "127.0.0.1";
 		
-        int numberOfNodes = 5;
+
         int[] intPorts = Configurations.intPorts;
         int[] extPorts = Configurations.extPorts;
         int[] keys = Configurations.fileNodeKeys;
+        int numberOfNodes = intPorts.length;
 
         long myKey = node.getKey().getHashId();
         FileNode[] nodes = new FileNode[numberOfNodes];
@@ -205,7 +208,7 @@ public class FileServerNodeImpl implements FileServerNode {
         * If key > my key ==> ask my successor to find keys' successor*/
 
         /*Try to find the closestPredecessor from my finger list. If I'm the closestPredecessor => return my successor.
-        * Else ask my successor to find the keys' successor.*/
+        * Else ask closestPredecessor to find the keys' successor.*/
 
         long givenKeyValue = key.getHashId();
 
@@ -214,12 +217,12 @@ public class FileServerNodeImpl implements FileServerNode {
             return getSuccessor();
         }
 
-        //Send message to my successor to get the keys' successor
-        FileNode mySuccessor = getSuccessor();
+        /* Send message to closestPredecessor to get the keys' successor */
         DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
         packet.setAttribute(Constants.KEY_ID.toString(), key);
-        sendMessage(packet, mySuccessor);
+        sendMessage(packet, closestPredecessor);
 
+        //TODO: HAndle this
         return null;
     }
 
@@ -275,16 +278,19 @@ public class FileServerNodeImpl implements FileServerNode {
         ChannelFuture cf = clientBootstrap.connect(addressToConnectTo);
         final DropItPacket dropPacket = packet;
         try{
-	        cf.addListener(new ChannelFutureListener(){
-	            public void operationComplete(ChannelFuture future) throws Exception {
-	                // check to see if we succeeded
-	                if(future.isSuccess()) {
-	                    Channel channel = future.getChannel();
-	                    channel.write(dropPacket);
-	                    // asynchronous
-	                }
-	            }
-	        });
+//	        cf.addListener(new ChannelFutureListener(){
+//	            public void operationComplete(ChannelFuture future) throws Exception {
+//	                // check to see if we succeeded
+//	                if(future.isSuccess()) {
+//	                    Channel channel = future.getChannel();
+//	                    channel.write(dropPacket);
+//	                    // asynchronous
+//	                }
+//	            }
+//	        });
+            cf.awaitUninterruptibly();
+            Channel channel = cf.getChannel();
+            channel.write(dropPacket);
         }catch(Exception e){
         	//Handle Exception
         }
@@ -372,6 +378,56 @@ public class FileServerNodeImpl implements FileServerNode {
 		}
 	}
 
+    /**
+     * Called periodically. Refreshes the finger table entries. nextFingerToUpdate stores the index
+     * of the next finger to fix.
+     */
+    public void fixFingers() {
+        fixFinger(nextFingerToUpdate);
+        nextFingerToUpdate = (nextFingerToUpdate + 1) % fingers.size();
+        System.out.println("-----MY FINGERS------- " + node.getPort_ring() + " " + node.getKey().getHashId());
+        for(int i=0; i<fingers.size();i++){
+            System.out.println("ME: " +  node.getPort_ring() + " FInger at "+ i +", PORT: " + fingers.get(i).getPort_ring() + ", KEY: " + fingers.get(i).getKey().getHashId());
+        }
+    }
+
+    public void fixFinger(int finger) {
+//        Iface iface;
+//        try {
+//            iface = clientFactory.get(node.getTNode());
+//        } catch (RetryFailedException e) {
+//            // We should always be able to connect to our own service. If not, its serious
+//            logger.severe("FixFingers [" + node.getPort_ring()
+//                    + "] failed to get client to itself.");
+//
+//            // Skip this finger. It will get updated on the next go throw the finger table.
+//            return;
+//        }
+
+        // Keep as separate variable: Be careful of some weird java issues with overflowing ints
+        long base = node.getKey().getHashId();
+        long pow = 0x0000000000000001L << finger;
+        long id = base + pow;
+
+        KeyId keyId = new KeyId(id);
+        System.out.println("Finding node for KEY:" + id);
+        FileNode updatedFinger = findSuccessor(keyId);
+        System.out.println("Found node for key:" + id + ",  "+ updatedFinger.getPort_ring() + "with key " + updatedFinger.getKey().getHashId());
+        System.out.println(""+ node.getPort_ring() +"------CHANGING FINGER at "+ finger + " to " + updatedFinger.getPort_ring() + " " + updatedFinger.getKey().getHashId());
+        setFinger(finger, updatedFinger);
+
+    }
+
+    public void setFinger(int i, FileNode n) {
+        if (i < 0 || i >= fingers.size())
+            return;
+//        if (i == 0) {
+//            setSuccessor(n);
+//            return;
+//        }
+        fingers.set(i, n);
+    }
+
 	private FileNode getPredecessor() {
 		return predecessor;
 	}
@@ -393,6 +449,11 @@ public class FileServerNodeImpl implements FileServerNode {
 	public void setSuccessors(ArrayList<FileNode> successors) {
 		this.successors = successors;
 	}
+
+    public void setSuccessor(FileNode node) {
+        successors.set(0, node);
+    }
+
 
 }
 

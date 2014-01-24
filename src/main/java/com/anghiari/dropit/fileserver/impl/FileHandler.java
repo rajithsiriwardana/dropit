@@ -30,16 +30,16 @@ public class FileHandler extends SimpleChannelHandler {
 
 		String method = pkt.getMethod();
 
-		System.out.println("method " + method);
+//		System.out.println("method " + method);
 
 		if (Constants.PING.toString().equalsIgnoreCase(method)) {
-			System.out.println("came here " + method);
+//			System.out.println("came here " + method);
 			PongOperation pongOperation = new PongOperation(ctx, e);
 			pongOperation.sendResponse();
 			// respondToPing(ctx,e);
 		} else if (Constants.PONG.toString().equalsIgnoreCase(method)) {
 
-			System.out.println("PONG received");
+//			System.out.println("PONG received");
 		} else if (Constants.RES_GET_FILENODE.toString().equalsIgnoreCase(
 				method)) {
 			// call the response method for node position request here.
