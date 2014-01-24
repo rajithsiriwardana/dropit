@@ -11,12 +11,12 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.codec.serialization.CompatibleObjectDecoder;
 import org.jboss.netty.handler.codec.serialization.CompatibleObjectEncoder;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * @author rajith
@@ -38,29 +38,20 @@ public class RequestNodeImpl implements RequestNode {
                 Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool(), Runtime.getRuntime()
                 .availableProcessors() * 2 + 1);
-
-        ServerBootstrap bootstrap = new ServerBootstrap(factory);
-        // Create the global ChannelGroup
         final ChannelGroup channelGroup = new DefaultChannelGroup(RequestNodeImpl.class.getName());
-        this.objectHandler = new ObjectHandler(channelGroup, this.activeFilesList);
+        ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
+                Executors.newCachedThreadPool(),
+                Executors.newCachedThreadPool()));
 
-        // Create the blockingQueue to wait for a limited number of client
-        BlockingQueue<Integer> answer = new LinkedBlockingQueue<Integer>();
-        // 200 threads max, Memory limitation: 1MB by channel, 1GB global, 100
-        // ms of timeout
-        OrderedMemoryAwareThreadPoolExecutor pipelineExecutor =
-                new OrderedMemoryAwareThreadPoolExecutor(200, 1048576, 1073741824, 100,
-                        TimeUnit.MILLISECONDS,
-                        Executors.defaultThreadFactory());
+        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            public ChannelPipeline getPipeline() throws Exception {
+                return Channels.pipeline(
+                        new CompatibleObjectDecoder(),
+                        new CompatibleObjectEncoder(), new ObjectHandler(channelGroup, activeFilesList));
+            }
 
-        PipelineFactory pipelineFactory = new PipelineFactory(channelGroup,
-                pipelineExecutor, answer, nbconn, this.objectHandler);
-        bootstrap.setPipelineFactory(pipelineFactory);
-        bootstrap.setOption("child.tcpNoDelay", true);
-        bootstrap.setOption("child.keepAlive", true);
-        bootstrap.setOption("child.reuseAddress", true);
-        bootstrap.setOption("child.connectTimeoutMillis", 100);
-        bootstrap.setOption("readWriteFair", true);
+            ;
+        });
 
         // *** Start the Netty running ***
         System.out.println("DropIt server started");
@@ -84,7 +75,7 @@ public class RequestNodeImpl implements RequestNode {
                 );
             }
         });
-
+/*
         Channel acceptor = this.bootstrap_rs.bind(new InetSocketAddress(ip, port + 1));
         if (acceptor.isBound()) {
             System.err.println("+++ SERVER - bound to " + ip + ":" + (port + 1));
@@ -96,7 +87,7 @@ public class RequestNodeImpl implements RequestNode {
         }
         // *** Start the Netty running ***
         System.out.println("Gossip server started");
-        //initGossipProtocol();
+        initGossipProtocol();*/
     }
 
     private void initGossipProtocol() {
