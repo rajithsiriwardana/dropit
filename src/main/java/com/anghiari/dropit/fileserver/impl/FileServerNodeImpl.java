@@ -413,11 +413,29 @@ public class FileServerNodeImpl implements FileServerNode {
 		this.sendMessage(packet, this.getSuccessor(),
 				new RingCommunicationHandler(this));
 
-//        FileNode curSuccessor = getSuccessor();
-//        FileNode SuccPredecessor = retrievePredecessor(curSuccessor);
+		//Implementation of retrievePredecessor must be done..!!
+		
+		//Assuming the Predecessor FileNode is received. 
+		//Creating temporary FileNode for testing
+		FileNode tempPredecessor = new FileNode(1, "1", 200, 400, new KeyId(5000000));
+		
+//      FileNode curSuccessor = getSuccessor();
+//      FileNode SuccPredecessor = retrievePredecessor(curSuccessor);
+		
+		//Temporary
+		FileNode SuccPredecessor = tempPredecessor;
+		
+		long succPredKey = SuccPredecessor.getKey().getHashId();
+		long nodeKey = this.getNode().getKey().getHashId();
+		long succKey = this.getSuccessor().getKey().getHashId();
+		
+		if(SuccPredecessor != null && 
+				isAfterXButBeforeOrEqualY(succPredKey, nodeKey, succKey)){
+			
+			this.setSuccessor(SuccPredecessor);
+		}
+		
 		System.out.println("Stabilized " + this.node.getPort_ring());
-
-
 	}
 
     private FileNode retrievePredecessor(FileNode curSuccessor) {
@@ -530,6 +548,9 @@ public class FileServerNodeImpl implements FileServerNode {
 		this.successors = successors;
 	}
 
+	/*
+	 * Add the node as the successor and push the current successor as the second in the list
+	 */
 	public void setSuccessor(FileNode node) {
 		// Add the node to the immediate successor
 		successors.add(0, node);

@@ -31,15 +31,15 @@ public class FileServerRunner {
             fileServer = new FileServerNodeImpl();
             fileServer.bootServer(node, true);
         }
-//
+
 //        PingOperation op=new PingOperation(new FileServerNodeImpl(),ip, 14501);
 //        op.sendRequest();
 //        
 //        
-//        FileServerNodeImpl newFileNode = new FileServerNodeImpl();
-//
-//        ReqServerForNodeOperation reqSerOp = new ReqServerForNodeOperation(newFileNode);
-//
-//    	reqSerOp.sendRequest();
+        FileServerNodeImpl newFileNode = new FileServerNodeImpl();
+
+        ReqServerForNodeOperation reqSerOp = new ReqServerForNodeOperation(newFileNode);
+
+    	reqSerOp.sendRequest();
     }
 }
