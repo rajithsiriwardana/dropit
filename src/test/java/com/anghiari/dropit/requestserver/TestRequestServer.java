@@ -12,6 +12,7 @@ import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
@@ -22,14 +23,14 @@ import java.util.concurrent.Executors;
 public class TestRequestServer {
 
     @Before
-    public void setEnvironment(){
+    public void setEnvironment() throws FileNotFoundException {
         RequestServerRunner.main(new String[]{"8005", "100"});
     }
 
     @Test
-    public void testServer () throws Exception {
-    	String [] args = new String[]{"localhost","8005","150"};
-    	
+    public void testServer() throws Exception {
+        String[] args = new String[]{"localhost", "8005", "150"};
+
         // Parse options.
         String host = "localhost";
         int port = 8005;
@@ -37,25 +38,25 @@ public class TestRequestServer {
 
         int size = 16384;
 
-        ChannelFactory factory = new NioClientSocketChannelFactory(Executors  
-                .newCachedThreadPool(), Executors.newCachedThreadPool(), 3);  
+        ChannelFactory factory = new NioClientSocketChannelFactory(Executors
+                .newCachedThreadPool(), Executors.newCachedThreadPool(), 3);
         ClientBootstrap bootstrap = new ClientBootstrap(factory);
         ChannelGroup channelGroup = new DefaultChannelGroup(
                 TestRequestServer.class.getName());
         RequestHandler handler = new RequestHandler(nbMessage, size);
 
-        bootstrap.getPipeline().addLast("handler", handler);  
-        bootstrap.setOption("tcpNoDelay", true);  
-        bootstrap.setOption("keepAlive", true);  
-        bootstrap.setOption("reuseAddress", true);  
-        bootstrap.setOption("connectTimeoutMillis", 100);  
-  
+        bootstrap.getPipeline().addLast("handler", handler);
+        bootstrap.setOption("tcpNoDelay", true);
+        bootstrap.setOption("keepAlive", true);
+        bootstrap.setOption("reuseAddress", true);
+        bootstrap.setOption("connectTimeoutMillis", 100);
+
         Channel channel = bootstrap.connect(new InetSocketAddress(host, port))
-                .awaitUninterruptibly().getChannel();  
+                .awaitUninterruptibly().getChannel();
 
         channelGroup.add(channel);
         DropItPacket packet = handler.getResponse();
         //TODO Assert
         factory.releaseExternalResources();
-    }  
+    }
 }  
