@@ -62,9 +62,9 @@ public class ObjectHandler extends SimpleChannelHandler {
                         (String) pptmp.getAttribute(Constants.FILE_PATH.toString()),
                         (String) pptmp.getAttribute(Constants.FILE_NAME.toString())));
                 //add file name to the list only if it's a PUT method
-                if (Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod())) {
+/*                if (Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod())) {
                     this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
-                }
+                }*/
             } else if (Constants.GOSSIP.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
 
@@ -91,6 +91,8 @@ public class ObjectHandler extends SimpleChannelHandler {
                 DropItPacket packet = new DropItPacket(Constants.RES_SEARCH.toString());
                 packet.setAttribute(Constants.SEARCH_RESULTS.toString(), searchRes);
                 sendResponse(ctx, e, packet);
+            } else if (Constants.ACK_FILE_SAVED.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
             } else if (Constants.GET_FILENODE.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
 

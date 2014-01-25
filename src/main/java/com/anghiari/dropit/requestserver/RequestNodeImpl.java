@@ -32,8 +32,8 @@ public class RequestNodeImpl implements RequestNode {
     public void start(String ip, int port, int nbconn) {
         this.activeFilesList = new ArrayList<String>();
         //temporary - populate the files list
-        this.activeFilesList.add("random" + new Random().nextInt() + ".txt");
-        this.activeFilesList.add("random" + new Random().nextInt() + ".txt");
+/*        this.activeFilesList.add("random" + new Random().nextInt() + ".txt");
+        this.activeFilesList.add("random" + new Random().nextInt() + ".txt");*/
 
         final ChannelGroup channelGroup = new DefaultChannelGroup(RequestNodeImpl.class.getName());
         this.exBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
