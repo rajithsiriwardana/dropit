@@ -1,11 +1,20 @@
 package com.anghiari.dropit.commons;
 
+import java.util.ArrayList;
+
 public class FileNode {
 
+	private int id;
     private String ip;
     private int port;
     private int port_ring;
     private KeyId key;
+    
+    
+//    private FileNode successor;
+//    private ArrayList<FileNode> successors;
+//    private FileNode predeccesor;
+    
 
     public FileNode(String ip, int port){
         this.ip = ip;
@@ -13,6 +22,14 @@ public class FileNode {
     }
 
     public FileNode(String ip, int port, int port_ring, KeyId key){
+        this.ip = ip;
+        this.port = port;
+        this.port_ring = port_ring;
+        this.key = key;
+    }
+    
+    public FileNode(int id,String ip, int port, int port_ring, KeyId key){
+    	this.setId(id);
         this.ip = ip;
         this.port = port;
         this.port_ring = port_ring;
@@ -61,4 +78,12 @@ public class FileNode {
     public int getPort_ring() {
         return port_ring;
     }
+    
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 }

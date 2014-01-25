@@ -491,7 +491,11 @@ public class FileServerNodeImpl implements FileServerNode {
 	}
 
 	public void setSuccessor(FileNode node) {
-		successors.set(0, node);
+		// Add the node to the immediate successor
+		successors.add(0, node);
+		
+		// Remove the last successor to keep the succesor list to the size 3
+		successors.remove(successors.size()-1);
 	}
 
 	public FileNode getNode() {

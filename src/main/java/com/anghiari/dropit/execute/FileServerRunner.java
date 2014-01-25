@@ -17,7 +17,7 @@ public class FileServerRunner {
 
         String ip = "127.0.0.1";
 //        int numberOfNodes = Integer.parseInt(args[0]);
-
+//
         int[] intPorts = Configurations.intPorts;
         int[] extPorts = Configurations.extPorts;
         int[] keys = Configurations.fileNodeKeys;
@@ -31,14 +31,8 @@ public class FileServerRunner {
             fileServer.bootServer(node);
         }
 
-//        PingOperation op=new PingOperation(new FileServerNodeImpl(),ip, 14501);
-//        op.sendRequest();
-
-        
-//        PingOperation op1=new PingOperation(new FileServerNodeImpl(),ip,8001);
-//        op1.sendRequest(new RingCommunicationHandler());
-        
-        //fileServer2.pingSuccessor(ip, 12500);
+        PingOperation op=new PingOperation(new FileServerNodeImpl(),ip, 14501);
+        op.sendRequest();
     	
     }
 }
