@@ -3,15 +3,7 @@ package com.anghiari.dropit.fileserver.impl;
 import com.anghiari.dropit.commons.Configurations;
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
-import com.anghiari.dropit.operations.AckStoreOperation;
-import com.anghiari.dropit.operations.PongOperation;
-import com.anghiari.dropit.operations.ReqJoinFinalOperation;
-import com.anghiari.dropit.operations.ReqJoinNodeOperation;
-import com.anghiari.dropit.operations.ResGetFilenodeOperation;
-import com.anghiari.dropit.operations.ResJoinNodeOperation;
-import com.anghiari.dropit.operations.SetPredOperation;
-import com.anghiari.dropit.operations.SetSuccOperation;
-import com.anghiari.dropit.operations.TransferOperation;
+import com.anghiari.dropit.operations.*;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.MessageEvent;
@@ -89,7 +81,10 @@ public class FileHandler extends SimpleChannelHandler {
 			new SetPredOperation(pkt).sendResponse();
 		} else if (Constants.SET_SUCCESSOR.toString().equalsIgnoreCase(method)) {
 			new SetSuccOperation(pkt).sendResponse();
-		}
+		} else if (Constants.DELETE.toString().equalsIgnoreCase(method)) {
+            new AckDeleteOperation(ctx,e).sendResponse();
+        }
+
 		super.messageReceived(ctx, e);
 	}
 }
