@@ -78,31 +78,7 @@ public class FileNode {
     public int getPort_ring() {
         return port_ring;
     }
-
-	public FileNode getSuccessor() {
-		return successor;
-	}
-
-	public void setSuccessor(FileNode successor) {
-		this.successor = successor;
-	}
-
-	public ArrayList<FileNode> getSuccessors() {
-		return successors;
-	}
-
-	public void setSuccessors(ArrayList<FileNode> successors) {
-		this.successors = successors;
-	}
-
-	public FileNode getPredeccesor() {
-		return predeccesor;
-	}
-
-	public void setPredeccesor(FileNode predeccesor) {
-		this.predeccesor = predeccesor;
-	}
-
+    
 	public int getId() {
 		return id;
 	}
