@@ -90,8 +90,14 @@ public class ObjectHandler extends SimpleChannelHandler {
                 }
                 DropItPacket packet = new DropItPacket(Constants.RES_SEARCH.toString());
                 packet.setAttribute(Constants.SEARCH_RESULTS.toString(), searchRes);
+                if (searchRes.size() == 0) {
+                    packet.setAttribute(Constants.LIST_NULL.toString(), "TRUE");
+                } else {
+                    packet.setAttribute(Constants.LIST_NULL.toString(), "FALSE");
+                }
                 sendResponse(ctx, e, packet);
             } else if (Constants.ACK_FILE_SAVED.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                System.out.println(pptmp.getMethod() + " received!");
                 this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
             } else if (Constants.GET_FILENODE.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
