@@ -10,7 +10,7 @@ import com.anghiari.dropit.commons.FileNode;
  * @author: sunimal
  */
 public interface FileServerNode {
-	public void bootServer(FileNode node);
+	public void bootServer(FileNode node , boolean status);
 
 	public int findSuccessor(int hashVal);
 

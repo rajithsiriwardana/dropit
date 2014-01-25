@@ -1,14 +1,5 @@
 package com.anghiari.dropit.fileserver.impl;
 
-import com.anghiari.dropit.commons.*;
-import com.anghiari.dropit.fileserver.FileServerNode;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.jboss.netty.handler.codec.serialization.*;
-
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
@@ -16,6 +7,28 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.handler.codec.serialization.CompatibleObjectDecoder;
+import org.jboss.netty.handler.codec.serialization.CompatibleObjectEncoder;
+
+import com.anghiari.dropit.commons.Configurations;
+import com.anghiari.dropit.commons.Constants;
+import com.anghiari.dropit.commons.DropItPacket;
+import com.anghiari.dropit.commons.FileNode;
+import com.anghiari.dropit.commons.KeyId;
+import com.anghiari.dropit.fileserver.FileServerNode;
 
 public class FileServerNodeImpl implements FileServerNode {
 
@@ -32,12 +45,16 @@ public class FileServerNodeImpl implements FileServerNode {
 	private static final Logger logger = Logger
 			.getLogger(FileServerNodeImpl.class.getName());
 
-	public void bootServer(FileNode node) {
+	public void bootServer(FileNode node, boolean status){
+		if(status){
+			initSuccessors();
+		}else{
+			
+		}
 		this.node = node;
         blockingManager = new BlockingRequestManager();
 		setSuccessors(new ArrayList<FileNode>());
 		nextFingerToUpdate = 0;
-		initSuccessors();
 		initFingers();
 
 		/**
@@ -499,9 +516,12 @@ public class FileServerNodeImpl implements FileServerNode {
 		this.predecessor = predecessor;
 	}
 
+	
+	/**
+	 * This method is called by the newly connected node to to the request server
+	 */
 	public int requestNodePosition(DropItPacket packet) {
-
-		sendMessage(packet, node);
+		sendMessageToRequestServer(packet, Constants.REQUEST_SERVER_LIST[0], new RingSetupHandler(this));
 		return 0;
 	}
 
@@ -523,5 +543,46 @@ public class FileServerNodeImpl implements FileServerNode {
 
 	public FileNode getNode() {
 		return node;
+	}
+	
+	public void sendMessageToRequestServer(DropItPacket packet, FileNode node,
+			final SimpleChannelHandler handler) {
+		
+		Executor bossPool = Executors.newCachedThreadPool();
+		Executor workerPool = Executors.newCachedThreadPool();
+		ChannelFactory channelFactory = new NioClientSocketChannelFactory(
+				bossPool, workerPool);
+		ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
+			public ChannelPipeline getPipeline() throws Exception {
+				return Channels.pipeline(new CompatibleObjectEncoder(),
+						new CompatibleObjectDecoder(),// ObjectDecoder might not
+														// work if the client
+														// side is not using
+														// netty ObjectDecoder
+														// for decoding.
+						handler);
+			}
+		};
+		ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
+		clientBootstrap.setPipelineFactory(pipelineFactory);
+
+		System.out.println("ring port line 314 " + node.getPort());
+
+		InetSocketAddress addressToConnectTo = new InetSocketAddress(
+				node.getIp(), node.getPort());
+		ChannelFuture cf = clientBootstrap.connect(addressToConnectTo);
+		final DropItPacket dropPacket = packet;
+		cf.addListener(new ChannelFutureListener() {
+			public void operationComplete(ChannelFuture future)
+					throws Exception {
+				// check to see if we succeeded
+				if (future.isSuccess()) {
+					Channel channel = future.getChannel();
+					channel.write(dropPacket);
+					// asynchronous
+				}
+			}
+		});
+
 	}
 }

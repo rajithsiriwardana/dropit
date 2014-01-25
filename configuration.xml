@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+	<fileserver id="1" ip="2" port="" portring="" key="100">
+		<successorList>
+			<successor>2</successor>
+			<successor>3</successor>
+		</successorList>
+		<predecessor>3</predecessor>
+	</fileserver>
+</configuration>

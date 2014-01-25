@@ -39,10 +39,6 @@ public class FileHandler extends SimpleChannelHandler {
 		} else if (Constants.PONG.toString().equalsIgnoreCase(method)) {
 
 			// System.out.println("PONG received");
-		} else if (Constants.RES_GET_FILENODE.toString().equalsIgnoreCase(
-				method)) {
-			// call the response method for node position request here.
-			new ResGetFilenodeOperation(pkt).sendRequest();
 		} else if (Constants.STORE.toString().equalsIgnoreCase(method)) {
 			byte[] fileByteArray = pkt.getData();
 			// Modify path with the folder to save files

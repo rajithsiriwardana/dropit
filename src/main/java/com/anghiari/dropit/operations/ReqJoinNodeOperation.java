@@ -4,6 +4,7 @@ import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.commons.FileNode;
 import com.anghiari.dropit.fileserver.impl.FileServerNodeImpl;
+import com.anghiari.dropit.fileserver.impl.RingSetupHandler;
 
 /**
  * This operation handles a request sent by a new node which is in need of

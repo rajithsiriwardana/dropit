@@ -18,8 +18,13 @@ public class FileServerRunAtInterval extends AbstractRunAtInterval{
 
 	@Override
 	public void runClosure() {
-		fileServer.stabilize();
-        fileServer.fixFingers();
+		fileServer.fixFingers();
+		
+		if(fileServer.getSuccessor() != null){
+			fileServer.stabilize();
+		}else{
+			System.out.println("The successor list is not yet setup : FileServerRunAtInterval");
+		}
 	}
 
 }

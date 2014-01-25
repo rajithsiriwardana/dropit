@@ -19,9 +19,9 @@ public enum Constants {
 
     public static final FileNode[] REQUEST_SERVER_LIST = new FileNode[2];
 
-    static {
-        REQUEST_SERVER_LIST[0] = new FileNode("", 0);
-        REQUEST_SERVER_LIST[1] = new FileNode("", 0);
-    }
+	static {
+		REQUEST_SERVER_LIST[0] = new FileNode("192.248.8.241", 8010);
+		REQUEST_SERVER_LIST[1] = new FileNode("", 0);
+	}
 
 }
