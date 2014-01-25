@@ -53,7 +53,7 @@ public class FileHandler extends SimpleChannelHandler {
 			}
 			FileOutputStream stream = new FileOutputStream(file);
 			stream.write(fileByteArray);
-			AckStoreOperation ackStoreOperation = new AckStoreOperation(ctx, e);
+			AckStoreOperation ackStoreOperation = new AckStoreOperation(ctx, e, file.getName());
 			ackStoreOperation.sendResponse();
 		} else if (Constants.RETRIEVE.toString().equalsIgnoreCase(method)) {
 			File file = new File(Configurations.FOLDER_PATH +  pkt.getAttribute(Constants.FILE_NAME
