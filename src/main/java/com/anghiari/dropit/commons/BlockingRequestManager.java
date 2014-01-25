@@ -9,13 +9,12 @@ import java.net.Socket;
  * @author: sunimal
  */
 public class BlockingRequestManager {
+    private ObjectOutputStream outStream;
+    private ObjectInputStream inStream;
+    private Socket clientSocket = null;
 
     //Send pkt to FileNode dest and wait for request. Returns dropit pkt.
     public DropItPacket sendMessageAndWaitForRequest(DropItPacket pkt, FileNode dest){
-
-        ObjectOutputStream outStream;
-        ObjectInputStream inStream;
-        Socket clientSocket = null;
         Object returnObject=null;
         try {
             clientSocket = new Socket(dest.getIp(), dest.getPort_ring());
