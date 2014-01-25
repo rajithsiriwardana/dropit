@@ -80,9 +80,16 @@ public class ObjectHandler extends SimpleChannelHandler {
 
             } else if (Constants.SEARCH.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
-
+                String keyWord = (String) pptmp.getAttribute(Constants.FILE_NAME.toString());
+                ArrayList<String> searchRes = new ArrayList<String>();
+                //go through the active list and add to the search result if it contains the key word
+                for (String fileName : activeFilesList) {
+                    if (fileName.toLowerCase().contains(keyWord.toLowerCase())) {
+                        searchRes.add(fileName);
+                    }
+                }
                 DropItPacket packet = new DropItPacket(Constants.RES_SEARCH.toString());
-                packet.setAttribute(Constants.SEARCH_RESULTS.toString(), activeFilesList);
+                packet.setAttribute(Constants.SEARCH_RESULTS.toString(), searchRes);
                 sendResponse(ctx, e, packet);
             } else if (Constants.GET_FILENODE.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
