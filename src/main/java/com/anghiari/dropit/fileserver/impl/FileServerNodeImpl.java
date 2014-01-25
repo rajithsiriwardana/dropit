@@ -296,6 +296,7 @@ public class FileServerNodeImpl implements FileServerNode {
 			}
 		};
 		ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
+        clientBootstrap.setOption("connectTimeoutMillis",80000);
 		clientBootstrap.setPipelineFactory(pipelineFactory);
 
 		InetSocketAddress addressToConnectTo = new InetSocketAddress(
@@ -341,6 +342,7 @@ public class FileServerNodeImpl implements FileServerNode {
 			}
 		};
 		ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
+        clientBootstrap.setOption("connectTimeoutMillis",80000);
 		clientBootstrap.setPipelineFactory(pipelineFactory);
 
 		System.out.println("ring port line 314 " + node.getPort_ring());
@@ -348,11 +350,7 @@ public class FileServerNodeImpl implements FileServerNode {
 		InetSocketAddress addressToConnectTo = new InetSocketAddress(
 				node.getIp(), node.getPort_ring());
 		ChannelFuture cf = clientBootstrap.connect(addressToConnectTo);
-        try {
-            cf.await(2000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+
         final DropItPacket dropPacket = packet;
 		cf.addListener(new ChannelFutureListener() {
 			public void operationComplete(ChannelFuture future)
