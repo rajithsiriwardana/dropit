@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.anghiari.dropit.commons.*;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -23,11 +24,6 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.codec.serialization.CompatibleObjectDecoder;
 import org.jboss.netty.handler.codec.serialization.CompatibleObjectEncoder;
 
-import com.anghiari.dropit.commons.Configurations;
-import com.anghiari.dropit.commons.Constants;
-import com.anghiari.dropit.commons.DropItPacket;
-import com.anghiari.dropit.commons.FileNode;
-import com.anghiari.dropit.commons.KeyId;
 import com.anghiari.dropit.fileserver.FileServerNode;
 
 public class FileServerNodeImpl implements FileServerNode {
@@ -45,17 +41,16 @@ public class FileServerNodeImpl implements FileServerNode {
 	private static final Logger logger = Logger
 			.getLogger(FileServerNodeImpl.class.getName());
 
-	public void bootServer(FileNode node, boolean status){
-		if(status){
-			initSuccessors();
-		}else{
-			
-		}
-		this.node = node;
+	public void bootServer(FileNode newNode, boolean status){
+
+		this.node = newNode;
         blockingManager = new BlockingRequestManager();
 		setSuccessors(new ArrayList<FileNode>());
 		nextFingerToUpdate = 0;
 		initFingers();
+        if(status){
+            initSuccessors();
+        }
 
 		/**
 		 * setup the channel for Outside Communication
@@ -99,6 +94,7 @@ public class FileServerNodeImpl implements FileServerNode {
         bootstrap_ring.setOption("connectTimeoutMillis",80000);
 
 		// Set up the pipeline factory.
+        final RingCommunicationHandler ringHandler = new RingCommunicationHandler(this);
 		this.bootstrap_ring.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
 				return Channels.pipeline(new CompatibleObjectDecoder(),// ObjectDecoder
@@ -116,22 +112,22 @@ public class FileServerNodeImpl implements FileServerNode {
 																		// ObjectDecoder
 																		// for
 																		// decoding.
-						new CompatibleObjectEncoder(), new FileHandler());
+						new CompatibleObjectEncoder(), ringHandler);
 			};
 		});
 
 		/**
 		 * Bind and start to accept incoming connections.
 		 */
-		Channel acceptor = this.bootstrap.bind(new InetSocketAddress(node
-				.getIp(), node.getPort()));
+		Channel acceptor = this.bootstrap.bind(new InetSocketAddress(newNode
+                .getIp(), newNode.getPort()));
 
 		if (acceptor.isBound()) {
-			System.err.println("+++ SERVER - bound to *: " + node.getPort());
+			System.err.println("+++ SERVER - bound to *: " + newNode.getPort());
 
 		} else {
 			System.err.println("+++ SERVER - Failed to bind to *: "
-					+ node.getPort());
+					+ newNode.getPort());
 			this.bootstrap.releaseExternalResources();
 		}
 
@@ -139,15 +135,15 @@ public class FileServerNodeImpl implements FileServerNode {
 		 * Bind and start the ring communication
 		 */
 		Channel acceptor_ring = this.bootstrap_ring.bind(new InetSocketAddress(
-				node.getIp(), node.getPort_ring()));
+				newNode.getIp(), newNode.getPort_ring()));
 
 		if (acceptor_ring.isBound()) {
 			System.err.println("+++ SERVER - bound to *: "
-					+ node.getPort_ring());
+                    + newNode.getPort_ring());
 
 		} else {
 			System.err.println("+++ SERVER - Failed to bind to *: "
-					+ node.getPort_ring());
+                    + newNode.getPort_ring());
 			this.bootstrap_ring.releaseExternalResources();
 		}
 
@@ -245,17 +241,19 @@ public class FileServerNodeImpl implements FileServerNode {
 		 */
 
 		long givenKeyValue = key.getHashId();
-
+        System.out.println(">>>>>>>>INSIDE FIND SUCCESSOR: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
 		FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
 		if (node.equals(closestPredecessor)) {
 			return getSuccessor();
 		}
 
 		/* Send message to closestPredecessor to get the keys' successor */
-		DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
+        System.out.println(">>>>>>>>Asking Closest Predessor to Find SUccessor<<<<<<<<");
+        DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
 		packet.setAttribute(Constants.KEY_ID.toString(), key);
 //		sendMessage(packet, closestPredecessor);
         DropItPacket response = blockingManager.sendMessageAndWaitForRequest(packet, closestPredecessor);
+        System.out.println(">>>>>>>>PREDECESSOR REPLIED :D<<<<<<<<");
         return (FileNode)response.getAttribute(Constants.RES_SUSC.toString());
 	}
 
@@ -322,16 +320,16 @@ public class FileServerNodeImpl implements FileServerNode {
 		final DropItPacket dropPacket = packet;
 		try {
 			cf.addListener(new ChannelFutureListener() {
-				public void operationComplete(ChannelFuture future)
-						throws Exception {
-					// check to see if we succeeded
-					if (future.isSuccess()) {
-						Channel channel = future.getChannel();
-						channel.write(dropPacket);
-						// asynchronous
-					}
-				}
-			});
+                public void operationComplete(ChannelFuture future)
+                        throws Exception {
+                    // check to see if we succeeded
+                    if (future.isSuccess()) {
+                        Channel channel = future.getChannel();
+                        channel.write(dropPacket);
+                        // asynchronous
+                    }
+                }
+            });
 		} catch (Exception e) {
 			// Handle Exception
 		}
@@ -359,7 +357,7 @@ public class FileServerNodeImpl implements FileServerNode {
 			}
 		};
 		ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
-        clientBootstrap.setOption("connectTimeoutMillis",80000);
+        clientBootstrap.setOption("connectTimeoutMillis", 80000);
 		clientBootstrap.setPipelineFactory(pipelineFactory);
 
 		System.out.println("ring port line 314 " + node.getPort_ring());

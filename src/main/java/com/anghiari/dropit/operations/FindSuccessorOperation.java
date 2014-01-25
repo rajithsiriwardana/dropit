@@ -25,6 +25,7 @@ public class FindSuccessorOperation extends AbstractOperation{
         FileNode node = this.fileServer.findSuccessor(keyId);
         System.out.println(">>>>>>>>>>>>>>>>>>>FOUND SUCCESSOR FOR KEY: " + keyId.getHashId() + "NODE:" + node.getPort_ring()+ " KEY: "+ node.getKey().getHashId() +" <<<<<<<<<<<<<<<<<<<<<<");
         DropItPacket outPacket = new DropItPacket(Constants.RES_SUSC.toString());
+        outPacket.setAttribute(Constants.FILE_NODE.toString(), node);
         // Send out a dropit Packet
         Channel channel = e.getChannel();
         ChannelFuture channelFuture = Channels.future(e.getChannel());
