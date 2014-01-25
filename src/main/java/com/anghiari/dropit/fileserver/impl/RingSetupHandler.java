@@ -27,6 +27,7 @@ public class RingSetupHandler extends SimpleChannelHandler {
 		
 		//Respond from Server Node in the ring to the new node
 		if (Constants.RES_SUSC.toString().equalsIgnoreCase(method)) {
+			System.out.println("Respond recieved for FIND_SUSC");
 			DropItPacket packet = new DropItPacket(
 					Constants.REQ_JOIN_NODE.toString());
 			FileNode node = (FileNode) pkt.getAttribute(Constants.INET_ADDRESS
