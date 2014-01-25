@@ -21,6 +21,7 @@ public class FileServerNodeImpl implements FileServerNode {
 
 	private ServerBootstrap bootstrap;
 	private ServerBootstrap bootstrap_ring;
+    private BlockingRequestManager blockingManager;
 
 	private FileNode node;
 	private FileNode predecessor;
@@ -33,6 +34,7 @@ public class FileServerNodeImpl implements FileServerNode {
 
 	public void bootServer(FileNode node) {
 		this.node = node;
+        blockingManager = new BlockingRequestManager();
 		setSuccessors(new ArrayList<FileNode>());
 		nextFingerToUpdate = 0;
 		initSuccessors();
@@ -235,10 +237,9 @@ public class FileServerNodeImpl implements FileServerNode {
 		/* Send message to closestPredecessor to get the keys' successor */
 		DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
 		packet.setAttribute(Constants.KEY_ID.toString(), key);
-		sendMessage(packet, closestPredecessor);
-
-		// TODO: HAndle this
-		return null;
+//		sendMessage(packet, closestPredecessor);
+        DropItPacket response = blockingManager.sendMessageAndWaitForRequest(packet, closestPredecessor);
+        return (FileNode)response.getAttribute(Constants.RES_SUSC.toString());
 	}
 
 	/*
@@ -399,10 +400,22 @@ public class FileServerNodeImpl implements FileServerNode {
 		DropItPacket packet = new DropItPacket(Constants.PING.toString());
 		this.sendMessage(packet, this.getSuccessor(),
 				new RingCommunicationHandler(this));
+
+//        FileNode curSuccessor = getSuccessor();
+//        FileNode SuccPredecessor = retrievePredecessor(curSuccessor);
 		System.out.println("Stabilized " + this.node.getPort_ring());
+
+
 	}
 
-	/**
+    private FileNode retrievePredecessor(FileNode curSuccessor) {
+
+        //TODO;
+        DropItPacket packet = new DropItPacket(Constants.GET_PREDECESSOR.toString());
+        return null;
+    }
+
+    /**
 	 * Called periodically. Checks whether the predecessor has failed.
 	 */
 	public void checkPredecessor() {
@@ -424,7 +437,8 @@ public class FileServerNodeImpl implements FileServerNode {
 		nextFingerToUpdate = (nextFingerToUpdate + 1) % fingers.size();
 		System.out.println("-----MY FINGERS------- " + node.getPort_ring()
 				+ " " + node.getKey().getHashId());
-		for (int i = 0; i < fingers.size(); i++) {
+        System.out.println("-----NEXT FINGER TO UPDATE: " + nextFingerToUpdate);
+        for (int i = 0; i < fingers.size(); i++) {
 			System.out.println("ME: " + node.getPort_ring() + " FInger at " + i
 					+ ", PORT: " + fingers.get(i).getPort_ring() + ", KEY: "
 					+ fingers.get(i).getKey().getHashId());
@@ -449,13 +463,16 @@ public class FileServerNodeImpl implements FileServerNode {
 		// Keep as separate variable: Be careful of some weird java issues with
 		// overflowing ints
 		long base = node.getKey().getHashId();
-		long pow = 0x0000000000000001L << finger;
+//		long pow = 0x0000000000000001L << finger;
+        long pow = (long)Math.pow(2.0f, finger);
 		long id = base + pow;
 
 		KeyId keyId = new KeyId(id);
-		System.out.println("Finding node for KEY:" + id);
+		System.out.println("" + node.getPort_ring() + ": "+ node.getKey().getHashId() + "FINGER: " + finger
+                + "------Finding node for KEY:" + id);
 		FileNode updatedFinger = findSuccessor(keyId);
-		System.out.println("Found node for key:" + id + ",  "
+		System.out.println("" + node.getPort_ring() + ": "+ node.getKey().getHashId()
+                + "------Found node for key:" + id + ",  "
 				+ updatedFinger.getPort_ring() + "with key "
 				+ updatedFinger.getKey().getHashId());
 		System.out.println("" + node.getPort_ring()

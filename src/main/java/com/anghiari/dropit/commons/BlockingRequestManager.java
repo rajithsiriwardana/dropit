@@ -16,6 +16,7 @@ public class BlockingRequestManager {
     //Send pkt to FileNode dest and wait for request. Returns dropit pkt.
     public DropItPacket sendMessageAndWaitForRequest(DropItPacket pkt, FileNode dest){
         Object returnObject=null;
+        System.out.println(">>>>>>>>>>>BLOCKING HANDLER SENDING MSG<<<<<<<<");
         try {
             clientSocket = new Socket(dest.getIp(), dest.getPort_ring());
             outStream = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -28,6 +29,7 @@ public class BlockingRequestManager {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } finally {
+            System.out.println(">>>>>BLOCKING HANDLER GOT REPLY<<<<<<");
             return (DropItPacket)returnObject;
         }
 

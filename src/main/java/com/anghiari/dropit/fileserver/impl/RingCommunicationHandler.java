@@ -1,5 +1,6 @@
 package com.anghiari.dropit.fileserver.impl;
 
+import com.anghiari.dropit.operations.FindSuccessorOperation;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.ExceptionEvent;
@@ -36,6 +37,10 @@ public class RingCommunicationHandler extends SimpleChannelHandler {
             PongOperation pongOperation=new PongOperation(ctx,e);
             pongOperation.sendResponse();
         	//respondToPing(ctx,e);
+        }else if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
+            System.out.println("==========CAME TO FING SUCC===========");
+            FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
+            findOperation.sendResponse();
         }
 
         super.messageReceived(ctx, e);

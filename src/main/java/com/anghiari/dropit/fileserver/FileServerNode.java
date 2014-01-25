@@ -1,6 +1,7 @@
 package com.anghiari.dropit.fileserver;
 
 
+import com.anghiari.dropit.commons.KeyId;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.commons.FileNode;
@@ -12,6 +13,8 @@ public interface FileServerNode {
 	public void bootServer(FileNode node);
 
 	public int findSuccessor(int hashVal);
+
+    public FileNode findSuccessor(KeyId keyId);
 
 	public void sendMessage(DropItPacket packet, FileNode node);
 
