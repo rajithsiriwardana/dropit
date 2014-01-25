@@ -82,7 +82,14 @@ public class FileHandler extends SimpleChannelHandler {
 		} else if (Constants.SET_SUCCESSOR.toString().equalsIgnoreCase(method)) {
 			new SetSuccOperation(pkt).sendResponse();
 		} else if (Constants.DELETE.toString().equalsIgnoreCase(method)) {
-            new AckDeleteOperation(ctx,e).sendResponse();
+            File file = new File(Configurations.FOLDER_PATH +  pkt.getAttribute(Constants.FILE_NAME
+                    .toString()));
+            if(file.exists()){
+                if(file.delete()){
+                    new AckDeleteOperation(ctx,e).sendResponse();
+                }
+            }
+
         }
 
 		super.messageReceived(ctx, e);
