@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,6 +45,7 @@ public class FileServerNodeImpl implements FileServerNode {
 		this.bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
+        this.bootstrap.setOption("connectTimeoutMillis",80000);
 
 		/* Set up the pipeline factory. */
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
@@ -75,6 +77,7 @@ public class FileServerNodeImpl implements FileServerNode {
 				new NioServerSocketChannelFactory(
 						Executors.newCachedThreadPool(),
 						Executors.newCachedThreadPool()));
+        bootstrap_ring.setOption("connectTimeoutMillis",80000);
 
 		// Set up the pipeline factory.
 		this.bootstrap_ring.setPipelineFactory(new ChannelPipelineFactory() {
@@ -344,7 +347,12 @@ public class FileServerNodeImpl implements FileServerNode {
 		InetSocketAddress addressToConnectTo = new InetSocketAddress(
 				node.getIp(), node.getPort_ring());
 		ChannelFuture cf = clientBootstrap.connect(addressToConnectTo);
-		final DropItPacket dropPacket = packet;
+        try {
+            cf.await(2000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        final DropItPacket dropPacket = packet;
 		cf.addListener(new ChannelFutureListener() {
 			public void operationComplete(ChannelFuture future)
 					throws Exception {
@@ -495,7 +503,7 @@ public class FileServerNodeImpl implements FileServerNode {
 		successors.add(0, node);
 		
 		// Remove the last successor to keep the succesor list to the size 3
-		successors.remove(successors.size()-1);
+		successors.remove(successors.size() - 1);
 	}
 
 	public FileNode getNode() {
