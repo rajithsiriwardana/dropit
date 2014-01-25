@@ -8,6 +8,8 @@ import com.anghiari.dropit.operations.ReqJoinFinalOperation;
 import com.anghiari.dropit.operations.ReqJoinNodeOperation;
 import com.anghiari.dropit.operations.ResGetFilenodeOperation;
 import com.anghiari.dropit.operations.ResJoinNodeOperation;
+import com.anghiari.dropit.operations.SetPredOperation;
+import com.anghiari.dropit.operations.SetSuccOperation;
 import com.anghiari.dropit.operations.TransferOperation;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -79,6 +81,11 @@ public class FileHandler extends SimpleChannelHandler {
 			new ResJoinNodeOperation(pkt).sendRequest();
 		} else if (Constants.REQ_JOIN_FINAL.toString().equalsIgnoreCase(method)) {
 			new ReqJoinFinalOperation(pkt).sendResponse();
+		} else if (Constants.SET_PREDECESSOR.toString()
+				.equalsIgnoreCase(method)) {
+			new SetPredOperation(pkt).sendResponse();
+		} else if (Constants.SET_SUCCESSOR.toString().equalsIgnoreCase(method)) {
+			new SetSuccOperation(pkt).sendResponse();
 		}
 		super.messageReceived(ctx, e);
 	}
