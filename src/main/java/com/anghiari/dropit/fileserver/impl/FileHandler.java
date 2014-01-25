@@ -1,5 +1,6 @@
 package com.anghiari.dropit.fileserver.impl;
 
+import com.anghiari.dropit.commons.Configurations;
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.operations.AckStoreOperation;
@@ -53,7 +54,7 @@ public class FileHandler extends SimpleChannelHandler {
 		} else if (Constants.STORE.toString().equalsIgnoreCase(method)) {
 			byte[] fileByteArray = pkt.getData();
 			// Modify path with the folder to save files
-			File file = new File((String) pkt.getAttribute(Constants.FILE_NAME
+			File file = new File(Configurations.FOLDER_PATH + pkt.getAttribute(Constants.FILE_NAME
 					.toString()));
 			if (!file.exists()) {
 				file.createNewFile();
@@ -63,15 +64,17 @@ public class FileHandler extends SimpleChannelHandler {
 			AckStoreOperation ackStoreOperation = new AckStoreOperation(ctx, e);
 			ackStoreOperation.sendResponse();
 		} else if (Constants.RETRIEVE.toString().equalsIgnoreCase(method)) {
-			File file = new File((String) pkt.getAttribute(Constants.FILE_NAME
+			File file = new File(Configurations.FOLDER_PATH +  pkt.getAttribute(Constants.FILE_NAME
 					.toString()));
-			byte[] filedata = new byte[(int) file.length()];
-			// Modify path with the folder to save files
-			FileInputStream fileInputStream = new FileInputStream(file);
-			BufferedInputStream bufferedInputStream = new BufferedInputStream(
-					fileInputStream);
-			bufferedInputStream.read(filedata, 0, filedata.length);
-			bufferedInputStream.close();
+            byte[] filedata = new byte[(int) file.length()];
+            if(file.exists()){
+                // Modify path with the folder to save files
+                FileInputStream fileInputStream = new FileInputStream(file);
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(
+                        fileInputStream);
+                bufferedInputStream.read(filedata, 0, filedata.length);
+                bufferedInputStream.close();
+            }
 			TransferOperation transferOperation = new TransferOperation(ctx, e,
 					filedata, file.getName());
 			transferOperation.sendResponse();

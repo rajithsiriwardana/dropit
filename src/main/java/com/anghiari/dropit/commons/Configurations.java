@@ -8,4 +8,6 @@ public class Configurations {
     public final static int[] intPorts = {15500,15501,15502,15503,15504,15505,15506,15507,15508,15509};
 
     public final static int[] fileNodeKeys = {0, 4, 7, 9, 15, 20, 22, 24, 28, 30};
+
+    public final static String FOLDER_PATH = "./FILES/";
 }
