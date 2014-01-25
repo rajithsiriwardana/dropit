@@ -11,8 +11,8 @@ import com.anghiari.dropit.fileserver.FileServerNode;
 import com.anghiari.dropit.fileserver.impl.FileServerNodeImpl;
 
 /**
- * This operation is when a new node is trying to connect by a request to the
- * node pointed by the request server.
+ * This operation handles a request sent by a new node which is in need of
+ * connecting to the ring.
  * 
  * @author Sanka
  * 
@@ -23,9 +23,11 @@ public class ReqJoinNodeOperation extends AbstractOperation {
 	private RingSetupHandler setupHandler;
 
 	public ReqJoinNodeOperation(DropItPacket pkt) {
-		responsePacket = new DropItPacket(Constants.RES_JOIN_NODE.toString());
+
+		responsePacket = new DropItPacket(Constants.FND_SUSC.toString());
 		node = (FileNode) pkt.getAttribute(Constants.INET_ADDRESS.toString());
 		setupHandler = new RingSetupHandler(this.fileServer);
+
 	}
 
 	private void setupNodeInRing() {
@@ -53,7 +55,7 @@ class RingSetupHandler extends SimpleChannelHandler {
 
 		if (Constants.RES_SUSC.toString().equalsIgnoreCase(method)) {
 			DropItPacket packet = new DropItPacket(
-					Constants.REQ_JOIN_NODE.toString());
+					Constants.REQ_JOIN_FINAL.toString());
 			FileNode node = (FileNode) pkt.getAttribute(Constants.INET_ADDRESS
 					.toString());
 			handledNode.sendMessage(packet, node, this);
