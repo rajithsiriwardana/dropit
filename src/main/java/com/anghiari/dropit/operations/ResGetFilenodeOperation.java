@@ -60,7 +60,12 @@ class RingSetupHandler extends SimpleChannelHandler {
 		} else if (Constants.RES_JOIN_NODE.toString().equalsIgnoreCase(method)) {
 			DropItPacket packet = new DropItPacket(
 					Constants.REQ_JOIN_FINAL.toString());
-			
+
+		} else if (Constants.ACK_PREDECESSOR.toString()
+				.equalsIgnoreCase(method)) {
+
+		} else if (Constants.ACK_SUCCESSOR.toString().equalsIgnoreCase(method)) {
+
 		}
 		super.messageReceived(ctx, e);
 	}
