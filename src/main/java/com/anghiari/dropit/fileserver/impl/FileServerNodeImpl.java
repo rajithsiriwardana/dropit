@@ -63,21 +63,7 @@ public class FileServerNodeImpl implements FileServerNode {
 		/* Set up the pipeline factory. */
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new CompatibleObjectDecoder(),// ObjectDecoder
-																		// might
-																		// not
-																		// work
-																		// if
-																		// the
-																		// client
-																		// side
-																		// is
-																		// not
-																		// using
-																		// netty
-																		// ObjectDecoder
-																		// for
-																		// decoding.
+				return Channels.pipeline(new CompatibleObjectDecoder(),
 						new CompatibleObjectEncoder(), new FileHandler());
 			};
 		});
@@ -96,21 +82,7 @@ public class FileServerNodeImpl implements FileServerNode {
         final RingCommunicationHandler ringHandler = new RingCommunicationHandler(this);
 		this.bootstrap_ring.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new CompatibleObjectDecoder(),// ObjectDecoder
-																		// might
-																		// not
-																		// work
-																		// if
-																		// the
-																		// client
-																		// side
-																		// is
-																		// not
-																		// using
-																		// netty
-																		// ObjectDecoder
-																		// for
-																		// decoding.
+				return Channels.pipeline(new CompatibleObjectDecoder(),
 						new CompatibleObjectEncoder(), ringHandler);
 			};
 		});
@@ -227,11 +199,6 @@ public class FileServerNodeImpl implements FileServerNode {
 	}
 
 	public FileNode findSuccessor(KeyId key) {
-		/*
-		 * If my predecessor key > key ==> ask my predecessor to find keys'
-		 * successor If my key > key > my predecessor key ==> i'm the successor
-		 * If key > my key ==> ask my successor to find keys' successor
-		 */
 
 		/*
 		 * Try to find the closestPredecessor from my finger list. If I'm the
@@ -250,10 +217,12 @@ public class FileServerNodeImpl implements FileServerNode {
         System.out.println(">>>>>>>>Asking Closest Predessor to Find SUccessor<<<<<<<<");
         DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
 		packet.setAttribute(Constants.KEY_ID.toString(), key);
-//		sendMessage(packet, closestPredecessor);
-        DropItPacket response = blockingManager.sendMessageAndWaitForRequest(packet, closestPredecessor);
-        System.out.println(">>>>>>>>PREDECESSOR REPLIED :D<<<<<<<<");
-        return (FileNode)response.getAttribute(Constants.RES_SUSC.toString());
+
+		sendMessage(packet, closestPredecessor);
+//        DropItPacket response = blockingManager.sendMessageAndWaitForRequest(packet, closestPredecessor);
+//        System.out.println(">>>>>>>>PREDECESSOR REPLIED :D<<<<<<<<");
+//        return (FileNode)response.getAttribute(Constants.RES_SUSC.toString());
+        return null;
 	}
 
 	/*
@@ -301,12 +270,7 @@ public class FileServerNodeImpl implements FileServerNode {
 		ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
 				return Channels.pipeline(new CompatibleObjectEncoder(),
-						new CompatibleObjectDecoder(),// ObjectDecoder might not
-														// work if the client
-														// side is not using
-														// netty ObjectDecoder
-														// for decoding.
-						new FileHandler());
+						new CompatibleObjectDecoder(), new FileHandler());
 			}
 		};
 		ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
@@ -347,12 +311,7 @@ public class FileServerNodeImpl implements FileServerNode {
 		ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
 				return Channels.pipeline(new CompatibleObjectEncoder(),
-						new CompatibleObjectDecoder(),// ObjectDecoder might not
-														// work if the client
-														// side is not using
-														// netty ObjectDecoder
-														// for decoding.
-						handler);
+						new CompatibleObjectDecoder(), handler);
 			}
 		};
 		ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
@@ -476,22 +435,6 @@ public class FileServerNodeImpl implements FileServerNode {
 	}
 
 	public void fixFinger(int finger) {
-		// Iface iface;
-		// try {
-		// iface = clientFactory.get(node.getTNode());
-		// } catch (RetryFailedException e) {
-		// // We should always be able to connect to our own service. If not,
-		// its serious
-		// logger.severe("FixFingers [" + node.getPort_ring()
-		// + "] failed to get client to itself.");
-		//
-		// // Skip this finger. It will get updated on the next go throw the
-		// finger table.
-		// return;
-		// }
-
-		// Keep as separate variable: Be careful of some weird java issues with
-		// overflowing ints
 		long base = node.getKey().getHashId();
 //		long pow = 0x0000000000000001L << finger;
         long pow = (long)Math.pow(2.0f, finger);
@@ -500,20 +443,34 @@ public class FileServerNodeImpl implements FileServerNode {
 		KeyId keyId = new KeyId(id);
 		System.out.println("" + node.getPort_ring() + ": "+ node.getKey().getHashId() + "FINGER: " + finger
                 + "------Finding node for KEY:" + id);
-		FileNode updatedFinger = findSuccessor(keyId);
-		System.out.println("" + node.getPort_ring() + ": "+ node.getKey().getHashId()
-                + "------Found node for key:" + id + ",  "
-				+ updatedFinger.getPort_ring() + "with key "
-				+ updatedFinger.getKey().getHashId());
-		System.out.println("" + node.getPort_ring()
+//		FileNode updatedFinger = findSuccessor(keyId);
+        findSuccessorAndUpdateFinger(finger, keyId);
+	}
+
+    private void findSuccessorAndUpdateFinger(int finger, KeyId keyId) {
+        FileNode updatedFinger = null;
+        long givenKeyValue = keyId.getHashId();
+        System.out.println(">>>>>>>>INSIDE FIND AND UPDATE FINGERS: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
+        FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
+        if (node.equals(closestPredecessor)) {
+            updatedFinger = getSuccessor();
+        }
+
+        if(updatedFinger != null){
+            System.out.println("" + node.getPort_ring()
 				+ "------CHANGING FINGER at " + finger + " to "
 				+ updatedFinger.getPort_ring() + " "
 				+ updatedFinger.getKey().getHashId());
-		setFinger(finger, updatedFinger);
+            setFinger(finger, updatedFinger);
+        }else{
+            DropItPacket outPacket = new DropItPacket(Constants.FND_SUSC_INT.toString());
+            outPacket.setAttribute(Constants.KEY_ID.toString(), keyId);
+            outPacket.setAttribute(Constants.FINGER.toString(), finger);
+            sendMessage(outPacket,closestPredecessor);
+        }
+    }
 
-	}
-
-	public void setFinger(int i, FileNode n) {
+    public void setFinger(int i, FileNode n) {
 		if (i < 0 || i >= fingers.size())
 			return;
 		// if (i == 0) {
@@ -548,9 +505,6 @@ public class FileServerNodeImpl implements FileServerNode {
 		this.successors = successors;
 	}
 
-	/*
-	 * Add the node as the successor and push the current successor as the second in the list
-	 */
 	public void setSuccessor(FileNode node) {
 		// Add the node to the immediate successor
 		successors.add(0, node);

@@ -41,6 +41,14 @@ public class RingCommunicationHandler extends SimpleChannelHandler {
             System.out.println("==========CAME TO FING SUCC===========");
             FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
             findOperation.sendResponse();
+        }else if(Constants.RES_SUSC.toString().equalsIgnoreCase(method)){
+            System.out.println("==========FIND SUCC REPLY CAME===========");
+
+
+        }else if(Constants.FND_SUSC_INT.toString().equalsIgnoreCase(method)){
+
+        }else if(Constants.RES_SUSC_INT.toString().equalsIgnoreCase(method)){
+
         }
 
         super.messageReceived(ctx, e);
