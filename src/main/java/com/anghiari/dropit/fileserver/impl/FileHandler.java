@@ -59,8 +59,26 @@ public class FileHandler extends SimpleChannelHandler {
 			}
 			FileOutputStream stream = new FileOutputStream(file);
 			stream.write(fileByteArray);
+
+            /*Replicating in Successors*/
+            FileNode succ = handledNode.getSuccessor();
+            if(succ!=null){
+                pkt.setMethod(Constants.REPLICATE.toString());
+                handledNode.sendMessage(pkt, succ);
+            }
+
 			AckStoreOperation ackStoreOperation = new AckStoreOperation(ctx, e, file.getName());
 			ackStoreOperation.sendResponse();
+        } else if (Constants.REPLICATE.toString().equalsIgnoreCase(method)){
+            byte[] fileByteArray = pkt.getData();
+            // Modify path with the folder to save files
+            File file = new File(Configurations.FOLDER_PATH + pkt.getAttribute(Constants.FILE_NAME
+                    .toString()));
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileOutputStream stream = new FileOutputStream(file);
+            stream.write(fileByteArray);
 		} else if (Constants.RETRIEVE.toString().equalsIgnoreCase(method)) {
 			File file = new File(Configurations.FOLDER_PATH +  pkt.getAttribute(Constants.FILE_NAME
 					.toString()));
@@ -97,9 +115,12 @@ public class FileHandler extends SimpleChannelHandler {
             }
 
         }else if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
-            System.out.println("==========####################CAME TO FIND SUCC: "+ ((FileNode)pkt.getAttribute(Constants.REQ_NODE.toString())).getIp() +"######################===========");
+            FileNode r = (FileNode)pkt.getAttribute(Constants.REQ_NODE.toString());
+            System.out.println("==========####################CAME TO FIND SUCC: "+ r.getIp() +":" + r.getPort() +"######################===========");
             FindSuccessorOperation findOperation = new FindSuccessorOperation(handledNode, ctx, e, pkt);
             findOperation.sendResponse(method);
+//            DropItPacket packet = new DropItPacket(Constants.RES_SUSC.toString());
+//            handledNode.sendMessage(packet, r);
         }else if(Constants.RES_SUSC.toString().equalsIgnoreCase(method)){
             System.out.println("==========FIND SUCC REPLY CAME===========");
         }else if(Constants.FND_SUSC_INT.toString().equalsIgnoreCase(method)){

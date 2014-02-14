@@ -39,7 +39,6 @@ public class FileServerRunner {
         FileServerNodeImpl newFileNode = new FileServerNodeImpl();
 
         ReqServerForNodeOperation reqSerOp = new ReqServerForNodeOperation(newFileNode);
-
-    	reqSerOp.sendRequest();
+        //CHINTHAKA REQUEST SERveR Caller
     }
 }

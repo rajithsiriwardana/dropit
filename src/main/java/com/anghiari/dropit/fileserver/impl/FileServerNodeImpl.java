@@ -311,6 +311,10 @@ public class FileServerNodeImpl implements FileServerNode {
 				node.getIp(), node.getPort());
 		ChannelFuture cf = clientBootstrap.connect(addressToConnectTo);
 		final DropItPacket dropPacket = packet;
+
+        System.out.println("!!!!!!Packet mtd: " + dropPacket.getMethod() + " " + dropPacket.toString());
+        System.out.println("!!!!!!Sending to: " + node.getIp());
+
 		try {
 			cf.addListener(new ChannelFutureListener() {
                 public void operationComplete(ChannelFuture future)
@@ -320,6 +324,7 @@ public class FileServerNodeImpl implements FileServerNode {
                         Channel channel = future.getChannel();
                         channel.write(dropPacket);
                         // asynchronous
+                        channel.close();
                     }
                 }
             });
