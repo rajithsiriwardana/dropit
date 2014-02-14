@@ -3,6 +3,7 @@ package com.anghiari.dropit.fileserver.impl;
 import com.anghiari.dropit.commons.Configurations;
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
+import com.anghiari.dropit.commons.FileNode;
 import com.anghiari.dropit.operations.*;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -101,8 +102,26 @@ public class FileHandler extends SimpleChannelHandler {
             findOperation.sendResponse();
         }else if(Constants.RES_SUSC.toString().equalsIgnoreCase(method)){
             System.out.println("==========FIND SUCC REPLY CAME===========");
+        }else if(Constants.FND_SUSC_INT.toString().equalsIgnoreCase(method)){
+            System.out.println("==========CAME TO FING SUCC INT===========");
+            FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
+            findOperation.sendResponse();
+        }else if(Constants.RES_SUSC_INT.toString().equalsIgnoreCase(method)){
+            System.out.println("==========FIND SUCC INT REPLY CAME===========");
+            FileNode node = (FileNode)pkt.getAttribute(Constants.FILE_NODE.toString());
+            FileNode requester = (FileNode)pkt.getAttribute(Constants.REQ_NODE.toString());
+            String reqIp = requester.getIp();
+            if(node != null){
+                String myIp = this.handledNode.getNode().getIp();
+                if(myIp.equalsIgnoreCase(reqIp)){
+                    int finger = ((Integer)pkt.getAttribute(Constants.FINGER.toString())).intValue();
+                    this.handledNode.setFinger(finger, node);
+                }
+            }
         }
 
-		super.messageReceived(ctx, e);
+
+
+    super.messageReceived(ctx, e);
 	}
 }

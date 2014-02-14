@@ -18,20 +18,31 @@ public class FindSuccessorOperation extends AbstractOperation{
         packet = incomingPacket;
     }
 
-    public void sendResponse(){
+    public void sendResponse(String method){
 
         KeyId keyId = (KeyId)packet.getAttribute(Constants.KEY_ID.toString());
         System.out.println(">>>>>>>>>>>>>>>>>>>FINDING SUCCESSOR FOR KEY: " + keyId.getHashId() +" <<<<<<<<<<<<<<<<<<<<<<");
-        FileNode node = this.fileServer.findSuccessor(keyId);
+        FileNode node = this.fileServer.findSuccessor(packet);
+
         if(node != null){
             System.out.println(">>>>>>>>>>>>>>>>>>>FOUND SUCCESSOR FOR KEY: " + keyId.getHashId() + "NODE:" + node.getPort_ring()+ " KEY: "+ node.getKey().getHashId() +" <<<<<<<<<<<<<<<<<<<<<<");
-            DropItPacket outPacket = new DropItPacket(Constants.RES_SUSC.toString());
+            DropItPacket outPacket;
+
+            if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
+                outPacket = new DropItPacket(Constants.RES_SUSC.toString());
+            }
+            else{
+                outPacket = new DropItPacket(Constants.RES_SUSC_INT.toString());
+            }
             outPacket.setAttribute(Constants.FILE_NODE.toString(), node);
-            // Send out a dropit Packet
-            Channel channel = e.getChannel();
-            ChannelFuture channelFuture = Channels.future(e.getChannel());
-            ChannelEvent responseEvent = new DownstreamMessageEvent(channel, channelFuture, outPacket, channel.getRemoteAddress());
-            ctx.sendDownstream(responseEvent);
+            FileNode requester = (FileNode)packet.getAttribute(Constants.REQ_NODE.toString());
+
+//            // Send out a dropit Packet
+
+//            Channel channel = e.getChannel();
+//            ChannelFuture channelFuture = Channels.future(e.getChannel());
+//            ChannelEvent responseEvent = new DownstreamMessageEvent(channel, channelFuture, outPacket, channel.getRemoteAddress());
+//            ctx.sendDownstream(responseEvent);
         }
 
     }
