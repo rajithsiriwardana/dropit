@@ -2,6 +2,7 @@ package com.anghiari.dropit.fileserver.impl;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -225,6 +226,34 @@ public class FileServerNodeImpl implements FileServerNode {
 //        return (FileNode)response.getAttribute(Constants.RES_SUSC.toString());
         return null;
 	}
+
+    public FileNode findSuccessor(DropItPacket inPacket){
+        KeyId key = (KeyId)inPacket.getAttribute(Constants.KEY_ID.toString());
+        long givenKeyValue = key.getHashId();
+        System.out.println(">>>>>>>>INSIDE FIND SUCCESSOR: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
+        FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
+        if (node.equals(closestPredecessor)) {
+            return getSuccessor();
+        }
+
+		/* Send message to closestPredecessor to get the keys' successor */
+        System.out.println(">>>>>>>>Asking Closest Predessor to Find SUccessor<<<<<<<<");
+//        DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
+//        packet.setAttribute(Constants.KEY_ID.toString(), key);
+        Stack<String> ipList = (Stack<String>)inPacket.getAttribute(Constants.IP_LIST.toString());
+        if(ipList!=null){
+            ipList = new Stack<String>();
+        }
+
+        ipList.push(node.getIp());
+        inPacket.setAttribute(Constants.IP_LIST.toString(), ipList);
+
+        sendMessage(inPacket, closestPredecessor);
+//        DropItPacket response = blockingManager.sendMessageAndWaitForRequest(packet, closestPredecessor);
+//        System.out.println(">>>>>>>>PREDECESSOR REPLIED :D<<<<<<<<");
+//        return (FileNode)response.getAttribute(Constants.RES_SUSC.toString());
+        return null;
+    }
 
 	/*
 	 * Scan this nodes finger list to find the closest predecessor for the given
