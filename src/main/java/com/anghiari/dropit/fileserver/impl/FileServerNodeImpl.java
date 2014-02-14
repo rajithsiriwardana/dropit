@@ -79,8 +79,9 @@ public class FileServerNodeImpl implements FileServerNode {
         bootstrap_ring.setOption("connectTimeoutMillis",80000);
 
 		// Set up the pipeline factory.
-        final RingCommunicationHandler ringHandler = new RingCommunicationHandler(this);
-		this.bootstrap_ring.setPipelineFactory(new ChannelPipelineFactory() {
+        //final RingCommunicationHandler ringHandler = new RingCommunicationHandler(this);
+        final FileHandler ringHandler = new FileHandler(this);
+        this.bootstrap_ring.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
 				return Channels.pipeline(new CompatibleObjectDecoder(),
 						new CompatibleObjectEncoder(), ringHandler);

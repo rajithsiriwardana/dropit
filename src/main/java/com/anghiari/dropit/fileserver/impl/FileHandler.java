@@ -5,9 +5,7 @@ import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
 import com.anghiari.dropit.operations.*;
 
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.channel.*;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -21,6 +19,15 @@ import java.io.FileOutputStream;
  */
 
 public class FileHandler extends SimpleChannelHandler {
+
+    private FileServerNodeImpl handledNode;
+
+    public FileHandler(FileServerNodeImpl node) {
+        this.handledNode = node;
+    }
+
+    public FileHandler() {
+    }
 
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
@@ -86,8 +93,32 @@ public class FileHandler extends SimpleChannelHandler {
                 }
             }
 
-        }
+        }else if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
+            System.out.println("==========CAME TO FING SUCC===========");
+            FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
+            findOperation.sendResponse();
+        }else if(Constants.RES_SUSC.toString().equalsIgnoreCase(method)){
+            System.out.println("==========FIND SUCC REPLY CAME===========");
 
-		super.messageReceived(ctx, e);
+
+        }else if(Constants.FND_SUSC_INT.toString().equalsIgnoreCase(method)){
+
+        }else if(Constants.RES_SUSC_INT.toString().equalsIgnoreCase(method)){
+
+        }
+        super.messageReceived(ctx, e);
 	}
+
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+            throws Exception {
+
+        //handling successor
+        handledNode.getSuccessors().remove(0);
+//    	System.out.println("Reset the successor list, new size is" + handledNode.getSuccessors().size());
+
+        System.out.println("Connection exception, server might be down");
+        Channels.close(e.getChannel());
+    }
 }
