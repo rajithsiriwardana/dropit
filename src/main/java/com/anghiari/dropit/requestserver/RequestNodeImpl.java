@@ -39,12 +39,14 @@ public class RequestNodeImpl implements RequestNode {
         this.exBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool()));
-
+        final ObjectHandler objectHandler = new ObjectHandler(channelGroup, activeFilesList);
         exBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             public ChannelPipeline getPipeline() throws Exception {
                 return Channels.pipeline(
                         new CompatibleObjectDecoder(),
-                        new CompatibleObjectEncoder(), new ObjectHandler(channelGroup, activeFilesList));
+                        new CompatibleObjectEncoder(),
+//                        new ObjectHandler(channelGroup, activeFilesList));
+                        objectHandler);
             }
 
             ;

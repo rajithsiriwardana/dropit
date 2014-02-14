@@ -2,10 +2,12 @@ package com.anghiari.dropit.requestserver;
 
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
+import com.anghiari.dropit.commons.FileNode;
 import com.anghiari.dropit.commons.KeyId;
 import com.anghiari.dropit.operations.PongOperation;
 import com.anghiari.dropit.requestserver.service.DHTUtils;
 import com.anghiari.dropit.requestserver.service.NodeFactory;
+import com.anghiari.dropit.requestserver.service.NodeFinder;
 import com.anghiari.dropit.requestserver.service.ServerClient;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
@@ -21,6 +23,8 @@ import java.util.logging.Logger;
 @ChannelPipelineCoverage("one")
 public class ObjectHandler extends SimpleChannelHandler {
     private ArrayList<String> activeFilesList;
+    private ChannelHandlerContext channelHandlerContext;
+    private MessageEvent messageEvent;
 
     private static final Logger logger = Logger.getLogger(ObjectHandler.class
             .getName());
@@ -53,18 +57,14 @@ public class ObjectHandler extends SimpleChannelHandler {
             if (Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod()) ||
                     Constants.GET.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
-
+                this.channelHandlerContext = ctx;
+                this.messageEvent = e;
                 KeyId id = DHTUtils
                         .generateKeyId((String) pptmp.getAttribute(Constants.FILE_NAME.toString()));
-                ServerClient client = new ServerClient();
-                //TODO: handle sendHash method
-                sendResponse(ctx, e, client.sendHash(id, Constants.valueOf(pptmp.getMethod()),
-                        (String) pptmp.getAttribute(Constants.FILE_PATH.toString()),
-                        (String) pptmp.getAttribute(Constants.FILE_NAME.toString())));
-                //add file name to the list only if it's a PUT method
-/*                if (Constants.PUT.toString().equalsIgnoreCase(pptmp.getMethod())) {
-                    this.activeFilesList.add(String.valueOf(pptmp.getAttribute(Constants.FILE_NAME.toString())));
-                }*/
+
+//                sendResponse(new DropItPacket("Gayya"));
+                NodeFinder nodeFinder = new NodeFinder();
+                nodeFinder.setup(NodeFactory.getNode()[0], Integer.parseInt(NodeFactory.getNode()[1]), "192.168.43.234", 13500, id, pptmp, this);
             } else if (Constants.GOSSIP.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
 
@@ -110,6 +110,20 @@ public class ObjectHandler extends SimpleChannelHandler {
 
                 PongOperation pongOperation = new PongOperation(ctx, e);
                 pongOperation.sendResponse();
+            } else if (Constants.RES_SUSC.toString().equalsIgnoreCase(pptmp.getMethod())) {
+                System.out.println(pptmp.getMethod() + " received!!!!");
+                FileNode fileNode = (FileNode) pptmp.getAttribute(Constants.FILE_NODE.toString());
+                ServerClient serverClient = new ServerClient();
+                DropItPacket sendToClient = serverClient.sendHash(pptmp.getAttribute(Constants.RECVD_PACKET.toString()).toString(),
+                        (String) pptmp.getAttribute(Constants.RECVD_PATH.toString()),
+                        (String) pptmp.getAttribute(Constants.RECVD_FNAME.toString()),
+                        fileNode.getIp(),
+                        fileNode.getPort());
+                sendResponse(sendToClient);
+//                sendResponse(new DropItPacket("gayya"));
+                System.out.println("Response sent with " +
+                        sendToClient.getAttribute(Constants.NODE_IP.toString()) + ":" +
+                        sendToClient.getAttribute(Constants.NODE_PORT.toString()));
             } else {
                 System.out.println(pptmp.getMethod() + " received! Yet no reply!");
                 super.messageReceived(ctx, e);
@@ -123,6 +137,15 @@ public class ObjectHandler extends SimpleChannelHandler {
         ChannelEvent responseEvent =
                 new DownstreamMessageEvent(channel, channelFuture, packet, channel.getRemoteAddress());
         ctx.sendDownstream(responseEvent);
+        System.err.println(channel.getRemoteAddress());
+    }
+
+    public void sendResponse(DropItPacket packet) {
+        Channel channel = messageEvent.getChannel();
+        ChannelFuture channelFuture = Channels.future(channel);
+        System.err.println(channel.getRemoteAddress());
+        ChannelEvent responseEvent = new DownstreamMessageEvent(channel, channelFuture, packet, channel.getRemoteAddress());
+        channelHandlerContext.sendDownstream(responseEvent);
     }
 
     @Override

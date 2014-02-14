@@ -2,23 +2,16 @@ package com.anghiari.dropit.requestserver.service;
 
 import com.anghiari.dropit.commons.Constants;
 import com.anghiari.dropit.commons.DropItPacket;
-import com.anghiari.dropit.commons.KeyId;
 
 /**
  * @author madhawa
  */
 public class ServerClient {
-    String host;
-    int port;
 
-    public DropItPacket sendHash(KeyId keyId, Constants method, String path, String fileName) throws Exception {
-        String[] hostdetails = NodeFactory.getNode();
-
-        this.host = hostdetails[0];
-        this.port = Integer.parseInt(hostdetails[1]);
+    public DropItPacket sendHash(String method, String path, String fileName, String fsip, int fsport) throws Exception {
 
 		/*
-		 * create DrobIt instance and set the attributes 
+         * create DrobIt instance and set the attributes
 		*/
 		/*DropItPacket hashPacket=new DropItPacket(Constants.FND_SUSC.toString());
 		hashPacket.setAttribute(Constants.KEY_ID.toString(), keyId);
@@ -61,18 +54,19 @@ public class ServerClient {
         DropItPacket respondHashPacket = null;
         if (Constants.PUT.toString().equalsIgnoreCase(method.toString())) {
             respondHashPacket = new DropItPacket(Constants.RES_PUT.toString());
-            respondHashPacket.setAttribute(Constants.NODE_IP.toString(), host);
-            respondHashPacket.setAttribute(Constants.NODE_PORT.toString(), port);
+            respondHashPacket.setAttribute(Constants.NODE_IP.toString(), fsip);
+            respondHashPacket.setAttribute(Constants.NODE_PORT.toString(), fsport);
             respondHashPacket.setAttribute(Constants.FILE_PATH.toString(), path);
             respondHashPacket.setAttribute(Constants.FILE_NAME.toString(), fileName);
         } else if (Constants.GET.toString().equalsIgnoreCase(method.toString())) {
             respondHashPacket = new DropItPacket(Constants.RES_GET.toString());
-            respondHashPacket.setAttribute(Constants.NODE_IP.toString(), host);
-            respondHashPacket.setAttribute(Constants.NODE_PORT.toString(), port);
+            respondHashPacket.setAttribute(Constants.NODE_IP.toString(), fsip);
+            respondHashPacket.setAttribute(Constants.NODE_PORT.toString(), fsport);
             respondHashPacket.setAttribute(Constants.FILE_PATH.toString(), path);
             respondHashPacket.setAttribute(Constants.FILE_NAME.toString(), fileName);
         }
-        System.out.println("Packet created! " + respondHashPacket.getAttribute(Constants.NODE_IP.toString()));
+        System.out.println("Packet created! " + respondHashPacket.getAttribute(Constants.NODE_IP.toString()) +
+                ":" + respondHashPacket.getAttribute(Constants.NODE_PORT.toString()));
         return respondHashPacket;
     }
 }

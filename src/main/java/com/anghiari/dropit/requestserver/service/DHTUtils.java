@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
  * @version ${Revision}
  */
 public class DHTUtils {
-    private static final int KEYSPACE = 32;    //keyspace = 32 , should be enough
+    private static final int KEYSPACE = 8;    //keyspace = 32 , should be enough
 
     /**
      * Generate a hash ID for the given String key
