@@ -34,6 +34,7 @@ public class RequestServerConfigLoader {
     public static ArrayList<InetSocketAddress> getBackUpServers() {
         ArrayList<InetSocketAddress> backupList = new ArrayList<InetSocketAddress>();
         for (String server : properties.getProperty("backup").split(",")) {
+            if ("".equalsIgnoreCase(server)) break;
             backupList.add(new InetSocketAddress(server.split(":")[0], Integer.parseInt(server.split(":")[1])));
         }
         return backupList;
