@@ -29,7 +29,7 @@ public class RingCommunicationHandler extends SimpleChannelHandler {
 	public void messageReceived(ChannelHandlerContext ctx,MessageEvent e) throws Exception {
         DropItPacket pkt = (DropItPacket)e.getMessage();
         String method =pkt.getMethod();
-        
+
 //        System.out.println("RingCommunicationHandler came here "+method );
         
         if(Constants.PING.toString().equalsIgnoreCase(method)){

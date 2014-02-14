@@ -399,8 +399,8 @@ public class FileServerNodeImpl implements FileServerNode {
 	public void stabilize() {
 
 		DropItPacket packet = new DropItPacket(Constants.PING.toString());
-		this.sendMessage(packet, this.getSuccessor(),
-				new RingCommunicationHandler(this));
+		//this.sendMessage(packet, this.getSuccessor(),new RingCommunicationHandler(this));
+        this.sendMessage(packet, this.getSuccessor(),new FileHandler(this));
 
 		//Implementation of retrievePredecessor must be done..!!
 		
