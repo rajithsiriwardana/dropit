@@ -12,7 +12,8 @@ import org.jboss.netty.channel.*;
  */
 public class FindSuccessorOperation extends AbstractOperation{
 
-    public FindSuccessorOperation(ChannelHandlerContext channelHandlerContext,MessageEvent evt, DropItPacket incomingPacket) {
+    public FindSuccessorOperation(FileServerNode fileServerNode, ChannelHandlerContext channelHandlerContext,MessageEvent evt, DropItPacket incomingPacket) {
+        this.fileServer = fileServerNode;
         ctx=channelHandlerContext;
         e=evt;
         packet = incomingPacket;
@@ -36,7 +37,14 @@ public class FindSuccessorOperation extends AbstractOperation{
             }
             outPacket.setAttribute(Constants.FILE_NODE.toString(), node);
             FileNode requester = (FileNode)packet.getAttribute(Constants.REQ_NODE.toString());
-            fileServer.sendMessage(this.packet,requester);
+            int finger = ((Integer)packet.getAttribute(Constants.FINGER.toString())).intValue();
+
+            outPacket.setAttribute(Constants.REQ_NODE.toString(), requester);
+            outPacket.setAttribute(Constants.FINGER.toString(), finger);
+//            FileNode requester = (FileNode)packet.getAttribute(Constants.REQ_NODE.toString());
+            System.out.println("************SENDING REPLY FOR KEY:" + keyId.getHashId() +" TO: " + requester.getPort() + "************");
+            System.out.println(outPacket.getMethod());
+            fileServer.sendMessage(outPacket,requester);
         }
 
     }

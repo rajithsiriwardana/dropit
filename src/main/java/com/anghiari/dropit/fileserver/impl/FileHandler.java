@@ -39,7 +39,7 @@ public class FileHandler extends SimpleChannelHandler {
 
 		String method = pkt.getMethod();
 
-		// System.out.println("method " + method);
+		System.out.println("(((((((((((((((((method " + method +" : " + handledNode.getNode().getPort()+"))))))))))))))))))))))))");
 
 		if (Constants.PING.toString().equalsIgnoreCase(method)) {
 			// System.out.println("came here " + method);
@@ -97,17 +97,15 @@ public class FileHandler extends SimpleChannelHandler {
             }
 
         }else if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
-            System.out.println("==========CAME TO FING SUCC===========");
-            FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
+            System.out.println("==========CAME TO FIND SUCC===========");
+            FindSuccessorOperation findOperation = new FindSuccessorOperation(handledNode, ctx, e, pkt);
             findOperation.sendResponse(method);
         }else if(Constants.RES_SUSC.toString().equalsIgnoreCase(method)){
             System.out.println("==========FIND SUCC REPLY CAME===========");
-            FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
-            findOperation.sendResponse(method);
         }else if(Constants.FND_SUSC_INT.toString().equalsIgnoreCase(method)){
-            System.out.println("==========CAME TO FING SUCC INT===========");
-            FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
-            findOperation.sendResponse();
+            System.out.println("==========CAME TO FIND SUCC INT===========");
+            FindSuccessorOperation findOperation = new FindSuccessorOperation(handledNode, ctx, e, pkt);
+            findOperation.sendResponse(method);
         }else if(Constants.RES_SUSC_INT.toString().equalsIgnoreCase(method)){
             System.out.println("==========FIND SUCC INT REPLY CAME===========");
             FileNode node = (FileNode)pkt.getAttribute(Constants.FILE_NODE.toString());

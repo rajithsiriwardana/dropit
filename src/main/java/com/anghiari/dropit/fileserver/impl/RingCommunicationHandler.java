@@ -39,7 +39,7 @@ public class RingCommunicationHandler extends SimpleChannelHandler {
         	//respondToPing(ctx,e);
         }else if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
             System.out.println("==========CAME TO FING SUCC===========");
-            FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
+            FindSuccessorOperation findOperation = new FindSuccessorOperation(handledNode, ctx, e, pkt);
             findOperation.sendResponse();
         }else if(Constants.RES_SUSC.toString().equalsIgnoreCase(method)){
             System.out.println("==========FIND SUCC REPLY CAME===========");

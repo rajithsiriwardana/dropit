@@ -1,8 +1,9 @@
 package com.anghiari.dropit.commons;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class FileNode {
+public class FileNode implements Serializable{
 
 	private int id;
     private String ip;
@@ -76,7 +77,8 @@ public class FileNode {
     }
 
     public int getPort_ring() {
-        return port_ring;
+//        return port_ring;
+        return port;
     }
     
 	public int getId() {

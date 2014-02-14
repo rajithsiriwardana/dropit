@@ -72,21 +72,21 @@ public class FileServerNodeImpl implements FileServerNode {
 		 * setup the channel for Ring Communication
 		 */
 
-		this.bootstrap_ring = new ServerBootstrap(
-				new NioServerSocketChannelFactory(
-						Executors.newCachedThreadPool(),
-						Executors.newCachedThreadPool()));
-        bootstrap_ring.setOption("connectTimeoutMillis",80000);
-
-		// Set up the pipeline factory.
-        //final RingCommunicationHandler ringHandler = new RingCommunicationHandler(this);
-        final FileHandler ringHandler = new FileHandler(this);
-        this.bootstrap_ring.setPipelineFactory(new ChannelPipelineFactory() {
-			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new CompatibleObjectDecoder(),
-						new CompatibleObjectEncoder(), ringHandler);
-			};
-		});
+//		this.bootstrap_ring = new ServerBootstrap(
+//				new NioServerSocketChannelFactory(
+//						Executors.newCachedThreadPool(),
+//						Executors.newCachedThreadPool()));
+//        bootstrap_ring.setOption("connectTimeoutMillis",80000);
+//
+//		// Set up the pipeline factory.
+//        //final RingCommunicationHandler ringHandler = new RingCommunicationHandler(this);
+//        final FileHandler ringHandler = new FileHandler(this);
+//        this.bootstrap_ring.setPipelineFactory(new ChannelPipelineFactory() {
+//			public ChannelPipeline getPipeline() throws Exception {
+//				return Channels.pipeline(new CompatibleObjectDecoder(),
+//						new CompatibleObjectEncoder(), ringHandler);
+//			};
+//		});
 
 		/**
 		 * Bind and start to accept incoming connections.
@@ -106,18 +106,18 @@ public class FileServerNodeImpl implements FileServerNode {
 		/**
 		 * Bind and start the ring communication
 		 */
-		Channel acceptor_ring = this.bootstrap_ring.bind(new InetSocketAddress(
-				newNode.getIp(), newNode.getPort_ring()));
+//		Channel acceptor_ring = this.bootstrap_ring.bind(new InetSocketAddress(
+//				newNode.getIp(), newNode.getPort_ring()));
 
-		if (acceptor_ring.isBound()) {
-			System.err.println("+++ SERVER - bound to *: "
-                    + newNode.getPort_ring());
-
-		} else {
-			System.err.println("+++ SERVER - Failed to bind to *: "
-                    + newNode.getPort_ring());
-			this.bootstrap_ring.releaseExternalResources();
-		}
+//		if (acceptor_ring.isBound()) {
+//			System.err.println("+++ SERVER - bound to *: "
+//                    + newNode.getPort_ring());
+//
+//		} else {
+//			System.err.println("+++ SERVER - Failed to bind to *: "
+//                    + newNode.getPort_ring());
+//			this.bootstrap_ring.releaseExternalResources();
+//		}
 
 		/**
 		 * Start the heart beat
@@ -168,7 +168,7 @@ public class FileServerNodeImpl implements FileServerNode {
 				pos < numberOfNodes ? nodes[pos++] : nodes[pos++
 						- numberOfNodes]);
 
-		System.out.println("My Successors");
+		System.out.println("My Successors: " + node.getPort() );
 		for (int i = 0; i < Constants.SUCCESSOR_LIST_SIZE; i++) {
 			System.out
 					.println(" " + getSuccessors().get(i).getPort()
@@ -180,7 +180,7 @@ public class FileServerNodeImpl implements FileServerNode {
 	private void initRunAtInterval() {
 
 		FileServerRunAtInterval intervalExecutor = new FileServerRunAtInterval(
-				1000, this);
+				Constants.INTERVAL, this);
 
 		intervalExecutor.start();
 	}
@@ -240,7 +240,7 @@ public class FileServerNodeImpl implements FileServerNode {
 //        DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
 //        packet.setAttribute(Constants.KEY_ID.toString(), key);
         Stack<String> ipList = (Stack<String>)inPacket.getAttribute(Constants.IP_LIST.toString());
-        if(ipList!=null){
+        if(ipList==null){
             ipList = new Stack<String>();
         }
 
@@ -493,10 +493,12 @@ public class FileServerNodeImpl implements FileServerNode {
 				+ updatedFinger.getKey().getHashId());
             setFinger(finger, updatedFinger);
         }else{
+            System.out.println("INSIDE FIX FINGERS AND UPDATE: ASKING FROM PREDECESSOR!: "+ closestPredecessor.getPort());
             DropItPacket outPacket = new DropItPacket(Constants.FND_SUSC_INT.toString());
             outPacket.setAttribute(Constants.KEY_ID.toString(), keyId);
             outPacket.setAttribute(Constants.FINGER.toString(), finger);
-            sendMessage(outPacket,closestPredecessor);
+            outPacket.setAttribute(Constants.REQ_NODE.toString(), node);
+            sendMessage(outPacket, closestPredecessor);
         }
     }
 

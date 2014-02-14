@@ -24,4 +24,5 @@ public enum Constants {
 		REQUEST_SERVER_LIST[1] = new FileNode("", 0);
 	}
 
+    public static final int INTERVAL = 3000;
 }
