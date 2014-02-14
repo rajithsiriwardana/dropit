@@ -99,9 +99,11 @@ public class FileHandler extends SimpleChannelHandler {
         }else if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
             System.out.println("==========CAME TO FING SUCC===========");
             FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
-            findOperation.sendResponse();
+            findOperation.sendResponse(method);
         }else if(Constants.RES_SUSC.toString().equalsIgnoreCase(method)){
             System.out.println("==========FIND SUCC REPLY CAME===========");
+            FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);
+            findOperation.sendResponse(method);
         }else if(Constants.FND_SUSC_INT.toString().equalsIgnoreCase(method)){
             System.out.println("==========CAME TO FING SUCC INT===========");
             FindSuccessorOperation findOperation = new FindSuccessorOperation(ctx, e, pkt);

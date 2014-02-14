@@ -36,13 +36,7 @@ public class FindSuccessorOperation extends AbstractOperation{
             }
             outPacket.setAttribute(Constants.FILE_NODE.toString(), node);
             FileNode requester = (FileNode)packet.getAttribute(Constants.REQ_NODE.toString());
-
-//            // Send out a dropit Packet
-
-//            Channel channel = e.getChannel();
-//            ChannelFuture channelFuture = Channels.future(e.getChannel());
-//            ChannelEvent responseEvent = new DownstreamMessageEvent(channel, channelFuture, outPacket, channel.getRemoteAddress());
-//            ctx.sendDownstream(responseEvent);
+            fileServer.sendMessage(this.packet,requester);
         }
 
     }
