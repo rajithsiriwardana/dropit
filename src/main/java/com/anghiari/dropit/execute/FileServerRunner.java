@@ -16,7 +16,7 @@ public class FileServerRunner {
 
     public static void main(String[] args) {
 
-        String ip = "127.0.0.1";
+        String ip = "192.168.43.253";
 //        int numberOfNodes = Integer.parseInt(args[0]);
 //
         int[] intPorts = Configurations.intPorts;

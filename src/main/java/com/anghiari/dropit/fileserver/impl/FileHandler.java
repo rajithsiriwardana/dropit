@@ -97,7 +97,7 @@ public class FileHandler extends SimpleChannelHandler {
             }
 
         }else if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
-            System.out.println("==========CAME TO FIND SUCC===========");
+            System.out.println("==========####################CAME TO FIND SUCC: "+ ((FileNode)pkt.getAttribute(Constants.REQ_NODE.toString())).getIp() +"######################===========");
             FindSuccessorOperation findOperation = new FindSuccessorOperation(handledNode, ctx, e, pkt);
             findOperation.sendResponse(method);
         }else if(Constants.RES_SUSC.toString().equalsIgnoreCase(method)){

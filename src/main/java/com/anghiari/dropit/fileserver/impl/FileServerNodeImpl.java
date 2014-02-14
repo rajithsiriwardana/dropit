@@ -135,7 +135,7 @@ public class FileServerNodeImpl implements FileServerNode {
 
 	private void initSuccessors() {
 		/* TEMPORARY IMPLEMENTATION. */
-		String ip = "127.0.0.1";
+		String ip = "192.168.43.253";
 
 		int[] intPorts = Configurations.intPorts;
 		int[] extPorts = Configurations.extPorts;
@@ -457,11 +457,11 @@ public class FileServerNodeImpl implements FileServerNode {
 		System.out.println("-----MY FINGERS------- " + node.getPort_ring()
 				+ " " + node.getKey().getHashId());
         System.out.println("-----NEXT FINGER TO UPDATE: " + nextFingerToUpdate);
-        for (int i = 0; i < fingers.size(); i++) {
-			System.out.println("ME: " + node.getPort_ring() + " FInger at " + i
-					+ ", PORT: " + fingers.get(i).getPort_ring() + ", KEY: "
-					+ fingers.get(i).getKey().getHashId());
-		}
+//        for (int i = 0; i < fingers.size(); i++) {
+//			System.out.println("ME: " + node.getPort_ring() + " FInger at " + i
+//					+ ", PORT: " + fingers.get(i).getPort_ring() + ", KEY: "
+//					+ fingers.get(i).getKey().getHashId());
+//		}
 	}
 
 	public void fixFinger(int finger) {

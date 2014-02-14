@@ -42,4 +42,8 @@ public class DropItPacket implements Serializable{
     public void setData(byte[] data) {
         this.data = data;
     }
+
+    public void setMethod(String mtd){
+        method = mtd;
+    }
 }
