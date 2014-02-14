@@ -31,7 +31,6 @@ public class FileServerNodeImpl implements FileServerNode {
 	private ServerBootstrap bootstrap;
 	private ServerBootstrap bootstrap_ring;
     private BlockingRequestManager blockingManager;
-
 	private FileNode node;
 	private FileNode predecessor;
 	private ArrayList<FileNode> successors;
@@ -60,12 +59,12 @@ public class FileServerNodeImpl implements FileServerNode {
 				Executors.newCachedThreadPool(),
 				Executors.newCachedThreadPool()));
         this.bootstrap.setOption("connectTimeoutMillis",80000);
-
+        final FileHandler fileHandler=new FileHandler(this);
 		/* Set up the pipeline factory. */
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
 				return Channels.pipeline(new CompatibleObjectDecoder(),
-						new CompatibleObjectEncoder(), new FileHandler());
+						new CompatibleObjectEncoder(), fileHandler);
 			};
 		});
 
@@ -297,10 +296,11 @@ public class FileServerNodeImpl implements FileServerNode {
 		Executor workerPool = Executors.newCachedThreadPool();
 		ChannelFactory channelFactory = new NioClientSocketChannelFactory(
 				bossPool, workerPool);
+        final FileHandler fileHandler=new FileHandler(this);
 		ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
 				return Channels.pipeline(new CompatibleObjectEncoder(),
-						new CompatibleObjectDecoder(), new FileHandler());
+						new CompatibleObjectDecoder(), fileHandler);
 			}
 		};
 		ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
