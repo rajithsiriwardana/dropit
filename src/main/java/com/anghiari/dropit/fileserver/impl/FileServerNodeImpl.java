@@ -135,7 +135,7 @@ public class FileServerNodeImpl implements FileServerNode {
 
 	private void initSuccessors() {
 		/* TEMPORARY IMPLEMENTATION. */
-		String ip = "192.168.43.253";
+		String ip = Configurations.ip;
 
 		int[] intPorts = Configurations.intPorts;
 		int[] extPorts = Configurations.extPorts;
@@ -180,7 +180,7 @@ public class FileServerNodeImpl implements FileServerNode {
 	private void initRunAtInterval() {
 
 		FileServerRunAtInterval intervalExecutor = new FileServerRunAtInterval(
-				Constants.INTERVAL, this);
+				Constants.FS_INTERVAL, this);
 
 		intervalExecutor.start();
 	}
@@ -436,6 +436,7 @@ public class FileServerNodeImpl implements FileServerNode {
 
         //TODO;
         DropItPacket packet = new DropItPacket(Constants.GET_PREDECESSOR.toString());
+
         return null;
     }
 

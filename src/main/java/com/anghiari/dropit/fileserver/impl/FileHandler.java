@@ -52,7 +52,7 @@ public class FileHandler extends SimpleChannelHandler {
 		} else if (Constants.STORE.toString().equalsIgnoreCase(method)) {
 			byte[] fileByteArray = pkt.getData();
 			// Modify path with the folder to save files
-			File file = new File(Configurations.FOLDER_PATH + pkt.getAttribute(Constants.FILE_NAME
+			File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + pkt.getAttribute(Constants.FILE_NAME
 					.toString()));
 			if (!file.exists()) {
 				file.createNewFile();
@@ -72,7 +72,7 @@ public class FileHandler extends SimpleChannelHandler {
         } else if (Constants.REPLICATE.toString().equalsIgnoreCase(method)){
             byte[] fileByteArray = pkt.getData();
             // Modify path with the folder to save files
-            File file = new File(Configurations.FOLDER_PATH + pkt.getAttribute(Constants.FILE_NAME
+            File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + pkt.getAttribute(Constants.FILE_NAME
                     .toString()));
             if (!file.exists()) {
                 file.createNewFile();
@@ -80,7 +80,7 @@ public class FileHandler extends SimpleChannelHandler {
             FileOutputStream stream = new FileOutputStream(file);
             stream.write(fileByteArray);
 		} else if (Constants.RETRIEVE.toString().equalsIgnoreCase(method)) {
-			File file = new File(Configurations.FOLDER_PATH +  pkt.getAttribute(Constants.FILE_NAME
+			File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" +  pkt.getAttribute(Constants.FILE_NAME
 					.toString()));
             byte[] filedata = new byte[(int) file.length()];
             if(file.exists()){
@@ -106,7 +106,7 @@ public class FileHandler extends SimpleChannelHandler {
 		} else if (Constants.SET_SUCCESSOR.toString().equalsIgnoreCase(method)) {
 			new SetSuccOperation(pkt).sendResponse();
 		} else if (Constants.DELETE.toString().equalsIgnoreCase(method)) {
-            File file = new File(Configurations.FOLDER_PATH +  pkt.getAttribute(Constants.FILE_NAME
+            File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" +  pkt.getAttribute(Constants.FILE_NAME
                     .toString()));
             if(file.exists()){
                 if(file.delete()){
