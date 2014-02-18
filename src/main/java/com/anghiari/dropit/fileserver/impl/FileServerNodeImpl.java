@@ -267,7 +267,8 @@ public class FileServerNodeImpl implements FileServerNode {
                             Channel channel = future.getChannel();
                             channel.write(dropPacket);
                             // asynchronous
-                            channel.close();
+                            if(!dropPacket.getMethod().equalsIgnoreCase(Constants.REPLICATE.toString()))
+                                channel.close();
                         }
                     }
                 });
@@ -422,7 +423,7 @@ public class FileServerNodeImpl implements FileServerNode {
     public void setFinger(int i, FileNode n) {
 
         if(i != 0 && fingers.get(i).getKey().getHashId() != n.getKey().getHashId()){
-            System.out.println("FileNode :" + node.getPort() + " changing finger at " + i +" to " + node.getPort() + " with key " + node.getKey().getHashId());
+            System.out.println("FileNode :" + node.getPort() + " changing finger at " + i +" to " + n.getPort() + " with key " + n.getKey().getHashId());
         }
 
 		if (i < 0 || i >= fingers.size())

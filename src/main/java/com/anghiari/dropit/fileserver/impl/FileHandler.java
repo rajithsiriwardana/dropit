@@ -87,24 +87,25 @@ public class FileHandler extends SimpleChannelHandler {
         } else if(Constants.LIVE_PRED.toString().equalsIgnoreCase(method)){
             handledNode.predAlive = true;
         } else if (Constants.STORE.toString().equalsIgnoreCase(method)) {
-			byte[] fileByteArray = pkt.getData();
+            String fileName = (String)pkt.getAttribute(Constants.FILE_NAME.toString());
+            System.out.println("Node " + handledNode.getNode().getPort() + " trying to store file " + fileName);
+            byte[] fileByteArray = pkt.getData();
             /*Create another copy of bytearray to send for replication*/
-            byte[] clone = new byte[fileByteArray.length];
-            System.arraycopy(fileByteArray, 0, clone, 0, fileByteArray.length);
+//            byte[] clone = new byte[fileByteArray.length];
+//            System.arraycopy(fileByteArray, 0, clone, 0, fileByteArray.length);
 
 			// Modify path with the folder to save files
-			File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + pkt.getAttribute(Constants.FILE_NAME
-					.toString()));
+			File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + fileName);
 			if (!file.exists()) {
 				file.createNewFile();
 			}
 			FileOutputStream stream = new FileOutputStream(file);
 			stream.write(fileByteArray);
 
-            System.out.println("Node " + handledNode.getNode().getPort() + " Stored file " + pkt.getAttribute(Constants.FILE_NAME.toString()));
+            System.out.println("Node " + handledNode.getNode().getPort() + " Stored file " + fileName);
             /*Replicating in Successors*/
             FileNode succ = handledNode.getSuccessor();
-            pkt.setData(clone);
+//            pkt.setData(clone);
             if(succ!=null){
 //                System.out.println("Sending to replicate!");
                 pkt.setMethod(Constants.REPLICATE.toString());
@@ -114,11 +115,11 @@ public class FileHandler extends SimpleChannelHandler {
 			AckStoreOperation ackStoreOperation = new AckStoreOperation(ctx, e, file.getName());
 			ackStoreOperation.sendResponse();
         } else if (Constants.REPLICATE.toString().equalsIgnoreCase(method)){
-            System.out.println("Node " + handledNode.getNode().getPort() +" Replicating!");
+            String fileName = (String)pkt.getAttribute(Constants.FILE_NAME.toString());
+            System.out.println("Node " + handledNode.getNode().getPort() +" Replicating file " + fileName);
             byte[] fileByteArray = pkt.getData();
             // Modify path with the folder to save files
-            File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + pkt.getAttribute(Constants.FILE_NAME
-                    .toString()));
+            File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + fileName);
             if (!file.exists()) {
                 file.createNewFile();
             }
@@ -184,7 +185,7 @@ public class FileHandler extends SimpleChannelHandler {
 
 
     super.messageReceived(ctx, e);
-	e.getChannel().close();
+//	e.getChannel().close();
     }
 
 }
