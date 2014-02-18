@@ -25,4 +25,5 @@ public enum Constants {
     }
 
     public static final int FS_INTERVAL = 10000;
+    public static final int GOSSIP_INTERVAL = 5000;
 }
