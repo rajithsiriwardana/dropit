@@ -22,11 +22,11 @@ public class FindSuccessorOperation extends AbstractOperation{
     public void sendResponse(String method){
 
         KeyId keyId = (KeyId)packet.getAttribute(Constants.KEY_ID.toString());
-        System.out.println(">>>>>>>>>>>>>>>>>>>FINDING SUCCESSOR FOR KEY: " + keyId.getHashId() +" <<<<<<<<<<<<<<<<<<<<<<");
+//        System.out.println(">>>>>>>>>>>>>>>>>>>FINDING SUCCESSOR FOR KEY: " + keyId.getHashId() +" <<<<<<<<<<<<<<<<<<<<<<");
         FileNode node = this.fileServer.findSuccessor(packet);
 
         if(node != null){
-            System.out.println(">>>>>>>>>>>>>>>>>>>FOUND SUCCESSOR FOR KEY: " + keyId.getHashId() + "NODE:" + node.getPort_ring()+ " KEY: "+ node.getKey().getHashId() +" <<<<<<<<<<<<<<<<<<<<<<");
+//            System.out.println(">>>>>>>>>>>>>>>>>>>FOUND SUCCESSOR FOR KEY: " + keyId.getHashId() + "NODE:" + node.getPort_ring()+ " KEY: "+ node.getKey().getHashId() +" <<<<<<<<<<<<<<<<<<<<<<");
             DropItPacket outPacket;
 
             if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
@@ -47,8 +47,8 @@ public class FindSuccessorOperation extends AbstractOperation{
 
             outPacket.setAttribute(Constants.REQ_NODE.toString(), requester);
 //            FileNode requester = (FileNode)packet.getAttribute(Constants.REQ_NODE.toString());
-            System.out.println("************SENDING REPLY FOR KEY:" + keyId.getHashId() +" TO: " + requester.getPort() + "************");
-            System.out.println(outPacket.getMethod());
+//            System.out.println("************SENDING REPLY FOR KEY:" + keyId.getHashId() +" TO: " + requester.getPort() + "************");
+//            System.out.println(outPacket.getMethod());
             fileServer.sendMessage(outPacket,requester);
         }
 

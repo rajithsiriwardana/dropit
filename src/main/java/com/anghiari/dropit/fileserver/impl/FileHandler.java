@@ -1,9 +1,6 @@
 package com.anghiari.dropit.fileserver.impl;
 
-import com.anghiari.dropit.commons.Configurations;
-import com.anghiari.dropit.commons.Constants;
-import com.anghiari.dropit.commons.DropItPacket;
-import com.anghiari.dropit.commons.FileNode;
+import com.anghiari.dropit.commons.*;
 import com.anghiari.dropit.operations.*;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -39,7 +36,7 @@ public class FileHandler extends SimpleChannelHandler {
 
 		String method = pkt.getMethod();
 
-		System.out.println("(((((((((((((((((method " + method +" : " + handledNode.getNode().getPort()+"))))))))))))))))))))))))");
+//		System.out.println("(((((((((((((((((method " + method +" : " + handledNode.getNode().getPort()+"))))))))))))))))))))))))");
 
 		if (Constants.PING.toString().equalsIgnoreCase(method)) {
 			// System.out.println("came here " + method);
@@ -49,8 +46,52 @@ public class FileHandler extends SimpleChannelHandler {
 		} else if (Constants.PONG.toString().equalsIgnoreCase(method)) {
 
 			// System.out.println("PONG received");
-		} else if (Constants.STORE.toString().equalsIgnoreCase(method)) {
+		} else if(Constants.GET_PREDECESSOR.toString().equalsIgnoreCase(method)){
+            FileNode requester = (FileNode)pkt.getAttribute(Constants.REQ_NODE.toString());
+
+            pkt.setMethod(Constants.RES_GET_PREDECESSOR.toString());
+            pkt.setAttribute(Constants.FILE_NODE.toString(), handledNode.getPredecessor());
+
+            handledNode.sendMessage(pkt, requester);
+
+        } else if(Constants.RES_GET_PREDECESSOR.toString().equalsIgnoreCase(method)){
+            FileNode succPredecessor = (FileNode)pkt.getAttribute(Constants.FILE_NODE.toString());
+            FileNode myPredecessor = handledNode.getPredecessor();
+
+            if(succPredecessor.getKey().getHashId() != myPredecessor.getKey().getHashId()){
+                /*Successors' Predecessor has changed.*/
+                handledNode.setSuccessor(succPredecessor);
+                pkt.setMethod(Constants.SET_PREDECESSOR.toString());
+                /*Notify my new successor to set its predecessor as me*/
+                pkt.setAttribute(Constants.FILE_NODE.toString(), handledNode.getNode());
+                handledNode.sendMessage(pkt, succPredecessor);
+            }
+
+        } else if (Constants.SET_PREDECESSOR.toString().equalsIgnoreCase(method)) {
+            FileNode newPredecessor = (FileNode)pkt.getAttribute(Constants.FILE_NODE.toString());
+            if(newPredecessor!=null){
+                handledNode.setPredecessor(newPredecessor);
+            }
+        } else if(Constants.SUCC_ALIVE.toString().equalsIgnoreCase(method)){
+            FileNode requester = (FileNode)pkt.getAttribute(Constants.REQ_NODE.toString());
+            pkt.setMethod(Constants.LIVE_SUCC.toString());
+
+            handledNode.sendMessage(pkt, requester);
+        } else if(Constants.LIVE_SUCC.toString().equalsIgnoreCase(method)){
+            /*Successor is alive!*/
+            handledNode.succAlive = true;
+        } else if(Constants.PRED_ALIVE.toString().equalsIgnoreCase(method)){
+            FileNode requester = (FileNode)pkt.getAttribute(Constants.REQ_NODE.toString());
+            pkt.setMethod(Constants.LIVE_PRED.toString());
+            handledNode.sendMessage(pkt, requester);
+        } else if(Constants.LIVE_PRED.toString().equalsIgnoreCase(method)){
+            handledNode.predAlive = true;
+        } else if (Constants.STORE.toString().equalsIgnoreCase(method)) {
 			byte[] fileByteArray = pkt.getData();
+            /*Create another copy of bytearray to send for replication*/
+            byte[] clone = new byte[fileByteArray.length];
+            System.arraycopy(fileByteArray, 0, clone, 0, fileByteArray.length);
+
 			// Modify path with the folder to save files
 			File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + pkt.getAttribute(Constants.FILE_NAME
 					.toString()));
@@ -60,9 +101,12 @@ public class FileHandler extends SimpleChannelHandler {
 			FileOutputStream stream = new FileOutputStream(file);
 			stream.write(fileByteArray);
 
+            System.out.println("Node " + handledNode.getNode().getPort() + " Stored file " + pkt.getAttribute(Constants.FILE_NAME.toString()));
             /*Replicating in Successors*/
             FileNode succ = handledNode.getSuccessor();
+            pkt.setData(clone);
             if(succ!=null){
+//                System.out.println("Sending to replicate!");
                 pkt.setMethod(Constants.REPLICATE.toString());
                 handledNode.sendMessage(pkt, succ);
             }
@@ -70,6 +114,7 @@ public class FileHandler extends SimpleChannelHandler {
 			AckStoreOperation ackStoreOperation = new AckStoreOperation(ctx, e, file.getName());
 			ackStoreOperation.sendResponse();
         } else if (Constants.REPLICATE.toString().equalsIgnoreCase(method)){
+            System.out.println("Node " + handledNode.getNode().getPort() +" Replicating!");
             byte[] fileByteArray = pkt.getData();
             // Modify path with the folder to save files
             File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + pkt.getAttribute(Constants.FILE_NAME
@@ -80,7 +125,8 @@ public class FileHandler extends SimpleChannelHandler {
             FileOutputStream stream = new FileOutputStream(file);
             stream.write(fileByteArray);
 		} else if (Constants.RETRIEVE.toString().equalsIgnoreCase(method)) {
-			File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" +  pkt.getAttribute(Constants.FILE_NAME
+            System.out.println("Retrieveing file "+pkt.getAttribute(Constants.FILE_NAME.toString()) + "!");
+            File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" +  pkt.getAttribute(Constants.FILE_NAME
 					.toString()));
             byte[] filedata = new byte[(int) file.length()];
             if(file.exists()){
@@ -91,7 +137,8 @@ public class FileHandler extends SimpleChannelHandler {
                 bufferedInputStream.read(filedata, 0, filedata.length);
                 bufferedInputStream.close();
             }
-			TransferOperation transferOperation = new TransferOperation(ctx, e,
+            System.out.println("Sending file!");
+            TransferOperation transferOperation = new TransferOperation(ctx, e,
 					filedata, file.getName());
 			transferOperation.sendResponse();
 		} else if (Constants.REQ_JOIN_NODE.toString().equalsIgnoreCase(method)) {
@@ -100,9 +147,6 @@ public class FileHandler extends SimpleChannelHandler {
 			new ResJoinNodeOperation(pkt).sendRequest();
 		} else if (Constants.REQ_JOIN_FINAL.toString().equalsIgnoreCase(method)) {
 			new ReqJoinFinalOperation(pkt).sendResponse();
-		} else if (Constants.SET_PREDECESSOR.toString()
-				.equalsIgnoreCase(method)) {
-			new SetPredOperation(pkt).sendResponse();
 		} else if (Constants.SET_SUCCESSOR.toString().equalsIgnoreCase(method)) {
 			new SetSuccOperation(pkt).sendResponse();
 		} else if (Constants.DELETE.toString().equalsIgnoreCase(method)) {
@@ -116,33 +160,31 @@ public class FileHandler extends SimpleChannelHandler {
 
         }else if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
             FileNode r = (FileNode)pkt.getAttribute(Constants.REQ_NODE.toString());
-            System.out.println("==========####################CAME TO FIND SUCC: "+ r.getIp() +":" + r.getPort() +"######################===========");
+            long key = ((KeyId)pkt.getAttribute(Constants.KEY_ID.toString())).getHashId();
+            System.out.println("Node " + handledNode.getNode().getPort() +" Finding Successor for Key: "+ key +", Requester: " + r.getIp() +":" + r.getPort());
             FindSuccessorOperation findOperation = new FindSuccessorOperation(handledNode, ctx, e, pkt);
             findOperation.sendResponse(method);
 //            DropItPacket packet = new DropItPacket(Constants.RES_SUSC.toString());
 //            handledNode.sendMessage(packet, r);
         }else if(Constants.RES_SUSC.toString().equalsIgnoreCase(method)){
-            System.out.println("==========FIND SUCC REPLY CAME===========");
+//            System.out.println("==========FIND SUCC REPLY CAME===========");
         }else if(Constants.FND_SUSC_INT.toString().equalsIgnoreCase(method)){
-            System.out.println("==========CAME TO FIND SUCC INT===========");
+//            System.out.println("==========CAME TO FIND SUCC INT===========");
             FindSuccessorOperation findOperation = new FindSuccessorOperation(handledNode, ctx, e, pkt);
             findOperation.sendResponse(method);
         }else if(Constants.RES_SUSC_INT.toString().equalsIgnoreCase(method)){
-            System.out.println("==========FIND SUCC INT REPLY CAME===========");
-            FileNode node = (FileNode)pkt.getAttribute(Constants.FILE_NODE.toString());
-            FileNode requester = (FileNode)pkt.getAttribute(Constants.REQ_NODE.toString());
-            String reqIp = requester.getIp();
-            if(node != null){
-                String myIp = this.handledNode.getNode().getIp();
-                if(myIp.equalsIgnoreCase(reqIp)){
-                    int finger = ((Integer)pkt.getAttribute(Constants.FINGER.toString())).intValue();
-                    this.handledNode.setFinger(finger, node);
-                }
+//            System.out.println("==========FIND SUCC INT REPLY CAME===========");
+            FileNode newFinger = (FileNode)pkt.getAttribute(Constants.FILE_NODE.toString());
+            int finger = ((Integer)pkt.getAttribute(Constants.FINGER.toString())).intValue();
+            if(newFinger != null){
+                handledNode.setFinger(finger, newFinger);
             }
         }
 
 
 
     super.messageReceived(ctx, e);
-	}
+	e.getChannel().close();
+    }
+
 }

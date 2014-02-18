@@ -2,10 +2,8 @@ package com.anghiari.dropit.fileserver.impl;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Stack;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.anghiari.dropit.commons.*;
@@ -36,6 +34,8 @@ public class FileServerNodeImpl implements FileServerNode {
 	private ArrayList<FileNode> successors;
 	private ArrayList<FileNode> fingers;
 	int nextFingerToUpdate;
+    boolean succAlive;
+    boolean predAlive;
 
 	private static final Logger logger = Logger
 			.getLogger(FileServerNodeImpl.class.getName());
@@ -46,9 +46,11 @@ public class FileServerNodeImpl implements FileServerNode {
         blockingManager = new BlockingRequestManager();
 		setSuccessors(new ArrayList<FileNode>());
 		nextFingerToUpdate = 0;
+        succAlive = true;
+        predAlive = true;
 		initFingers();
         if(status){
-            initSuccessors();
+            initSuccessorsAndPredecessor();
         }
 
 		/**
@@ -69,26 +71,6 @@ public class FileServerNodeImpl implements FileServerNode {
 		});
 
 		/**
-		 * setup the channel for Ring Communication
-		 */
-
-//		this.bootstrap_ring = new ServerBootstrap(
-//				new NioServerSocketChannelFactory(
-//						Executors.newCachedThreadPool(),
-//						Executors.newCachedThreadPool()));
-//        bootstrap_ring.setOption("connectTimeoutMillis",80000);
-//
-//		// Set up the pipeline factory.
-//        //final RingCommunicationHandler ringHandler = new RingCommunicationHandler(this);
-//        final FileHandler ringHandler = new FileHandler(this);
-//        this.bootstrap_ring.setPipelineFactory(new ChannelPipelineFactory() {
-//			public ChannelPipeline getPipeline() throws Exception {
-//				return Channels.pipeline(new CompatibleObjectDecoder(),
-//						new CompatibleObjectEncoder(), ringHandler);
-//			};
-//		});
-
-		/**
 		 * Bind and start to accept incoming connections.
 		 */
 		Channel acceptor = this.bootstrap.bind(new InetSocketAddress(newNode
@@ -104,36 +86,19 @@ public class FileServerNodeImpl implements FileServerNode {
 		}
 
 		/**
-		 * Bind and start the ring communication
-		 */
-//		Channel acceptor_ring = this.bootstrap_ring.bind(new InetSocketAddress(
-//				newNode.getIp(), newNode.getPort_ring()));
-
-//		if (acceptor_ring.isBound()) {
-//			System.err.println("+++ SERVER - bound to *: "
-//                    + newNode.getPort_ring());
-//
-//		} else {
-//			System.err.println("+++ SERVER - Failed to bind to *: "
-//                    + newNode.getPort_ring());
-//			this.bootstrap_ring.releaseExternalResources();
-//		}
-
-		/**
 		 * Start the heart beat
 		 */
 		initRunAtInterval();
 	}
 
 	private void initFingers() {
-		/* TEMPORARY IMPLEMENTATION. */
 		fingers = new ArrayList<FileNode>();
 		for (int i = 0; i < Constants.KEY_SPACE; i++) {
 			fingers.add(node);
 		}
 	}
 
-	private void initSuccessors() {
+	private void initSuccessorsAndPredecessor() {
 		/* TEMPORARY IMPLEMENTATION. */
 		String ip = Configurations.ip;
 
@@ -158,24 +123,29 @@ public class FileServerNodeImpl implements FileServerNode {
 			}
 		}
 
-		getSuccessors().add(
-				pos < numberOfNodes ? nodes[pos++] : nodes[pos++
-						- numberOfNodes]);
-		getSuccessors().add(
-				pos < numberOfNodes ? nodes[pos++] : nodes[pos++
-						- numberOfNodes]);
-		getSuccessors().add(
-				pos < numberOfNodes ? nodes[pos++] : nodes[pos++
-						- numberOfNodes]);
 
-		System.out.println("My Successors: " + node.getPort() );
+        predecessor = nodes[pos==1? numberOfNodes-1: pos-2];
+
+		successors.add(
+                pos < numberOfNodes ? nodes[pos++] : nodes[pos++
+                        - numberOfNodes]);
+		successors.add(
+                pos < numberOfNodes ? nodes[pos++] : nodes[pos++
+                        - numberOfNodes]);
+		successors.add(
+                pos < numberOfNodes ? nodes[pos++] : nodes[pos++
+                        - numberOfNodes]);
+
+        System.out.println("_________________________________________________________________________________________");
+        System.out.println("Successors: " + node.getPort() );
 		for (int i = 0; i < Constants.SUCCESSOR_LIST_SIZE; i++) {
 			System.out
-					.println(" " + getSuccessors().get(i).getPort()
-							+ "with key "
+					.println("Me: " + node.getPort() + ", Succ at "+ i + " is " + getSuccessors().get(i).getPort()
+							+ " : "
 							+ getSuccessors().get(i).getKey().getHashId());
 		}
-	}
+        System.out.println("" + node.getPort() + " Predecessor: " + predecessor.getPort() + " : " + predecessor.getKey().getHashId());
+    }
 
 	private void initRunAtInterval() {
 
@@ -183,20 +153,6 @@ public class FileServerNodeImpl implements FileServerNode {
 				Constants.FS_INTERVAL, this);
 
 		intervalExecutor.start();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.anghiari.dropit.fileserver.FileServerNode#findSuccessor(int)
-	 * Each node has a findSuccessor method, return ip of the fileserver which
-	 * has the file
-	 */
-
-	public int findSuccessor(int hashVal) {
-		// TODO Auto-generated method stub
-
-		return 0;
 	}
 
 	public FileNode findSuccessor(KeyId key) {
@@ -208,49 +164,34 @@ public class FileServerNodeImpl implements FileServerNode {
 		 */
 
 		long givenKeyValue = key.getHashId();
-        System.out.println(">>>>>>>>INSIDE FIND SUCCESSOR: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
+//        System.out.println(">>>>>>>>INSIDE FIND SUCCESSOR: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
 		FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
 		if (node.equals(closestPredecessor)) {
 			return getSuccessor();
 		}
 
 		/* Send message to closestPredecessor to get the keys' successor */
-        System.out.println(">>>>>>>>Asking Closest Predessor to Find SUccessor<<<<<<<<");
+//        System.out.println(">>>>>>>>Asking Closest Predessor to Find SUccessor<<<<<<<<");
         DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
 		packet.setAttribute(Constants.KEY_ID.toString(), key);
 
 		sendMessage(packet, closestPredecessor);
-//        DropItPacket response = blockingManager.sendMessageAndWaitForRequest(packet, closestPredecessor);
 //        System.out.println(">>>>>>>>PREDECESSOR REPLIED :D<<<<<<<<");
-//        return (FileNode)response.getAttribute(Constants.RES_SUSC.toString());
         return null;
 	}
 
     public FileNode findSuccessor(DropItPacket inPacket){
         KeyId key = (KeyId)inPacket.getAttribute(Constants.KEY_ID.toString());
         long givenKeyValue = key.getHashId();
-        System.out.println(">>>>>>>>INSIDE FIND SUCCESSOR: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
+//        System.out.println(">>>>>>>>INSIDE FIND SUCCESSOR: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
         FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
         if (node.equals(closestPredecessor)) {
             return getSuccessor();
         }
 
 		/* Send message to closestPredecessor to get the keys' successor */
-        System.out.println(">>>>>>>>Asking Closest Predessor to Find SUccessor<<<<<<<<");
-//        DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
-//        packet.setAttribute(Constants.KEY_ID.toString(), key);
-        Stack<String> ipList = (Stack<String>)inPacket.getAttribute(Constants.IP_LIST.toString());
-        if(ipList==null){
-            ipList = new Stack<String>();
-        }
-
-        ipList.push(node.getIp());
-        inPacket.setAttribute(Constants.IP_LIST.toString(), ipList);
-
+//        System.out.println(">>>>>>>>Asking Closest Predessor to Find SUccessor<<<<<<<<");
         sendMessage(inPacket, closestPredecessor);
-//        DropItPacket response = blockingManager.sendMessageAndWaitForRequest(packet, closestPredecessor);
-//        System.out.println(">>>>>>>>PREDECESSOR REPLIED :D<<<<<<<<");
-//        return (FileNode)response.getAttribute(Constants.RES_SUSC.toString());
         return null;
     }
 
@@ -289,55 +230,58 @@ public class FileServerNodeImpl implements FileServerNode {
 	}
 
 	public void sendMessage(DropItPacket packet, FileNode node) {
-		System.out.println("Sending MSG; Method:" + packet.getMethod()
-				+ ", Node IP:" + node.getIp() + ", Port:" + node.getPort());
 
-		Executor bossPool = Executors.newCachedThreadPool();
-		Executor workerPool = Executors.newCachedThreadPool();
-		ChannelFactory channelFactory = new NioClientSocketChannelFactory(
-				bossPool, workerPool);
-        final FileHandler fileHandler=new FileHandler(this);
-		ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
-			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(new CompatibleObjectEncoder(),
-						new CompatibleObjectDecoder(), fileHandler);
-			}
-		};
-		ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
-        clientBootstrap.setOption("connectTimeoutMillis",80000);
-		clientBootstrap.setPipelineFactory(pipelineFactory);
+        if(packet != null && node!=null){
+    //		System.out.println("Sending MSG; Method:" + packet.getMethod()
+    //				+ ", Node IP:" + node.getIp() + ", Port:" + node.getPort());
 
-		InetSocketAddress addressToConnectTo = new InetSocketAddress(
-				node.getIp(), node.getPort());
-		ChannelFuture cf = clientBootstrap.connect(addressToConnectTo);
-		final DropItPacket dropPacket = packet;
-
-        System.out.println("!!!!!!Packet mtd: " + dropPacket.getMethod() + " " + dropPacket.toString());
-        System.out.println("!!!!!!Sending to: " + node.getIp());
-
-		try {
-			cf.addListener(new ChannelFutureListener() {
-                public void operationComplete(ChannelFuture future)
-                        throws Exception {
-                    // check to see if we succeeded
-                    if (future.isSuccess()) {
-                        Channel channel = future.getChannel();
-                        channel.write(dropPacket);
-                        // asynchronous
-                        channel.close();
-                    }
+            Executor bossPool = Executors.newCachedThreadPool();
+            Executor workerPool = Executors.newCachedThreadPool();
+            ChannelFactory channelFactory = new NioClientSocketChannelFactory(
+                    bossPool, workerPool);
+            final FileHandler fileHandler=new FileHandler(this);
+            ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
+                public ChannelPipeline getPipeline() throws Exception {
+                    return Channels.pipeline(new CompatibleObjectEncoder(),
+                            new CompatibleObjectDecoder(), fileHandler);
                 }
-            });
-		} catch (Exception e) {
-			// Handle Exception
-		}
+            };
+            ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
+            clientBootstrap.setOption("connectTimeoutMillis",80000);
+            clientBootstrap.setPipelineFactory(pipelineFactory);
+
+            InetSocketAddress addressToConnectTo = new InetSocketAddress(
+                    node.getIp(), node.getPort());
+            ChannelFuture cf = clientBootstrap.connect(addressToConnectTo);
+            final DropItPacket dropPacket = packet;
+
+    //        System.out.println("!!!!!!Packet mtd: " + dropPacket.getMethod() + " " + dropPacket.toString());
+    //        System.out.println("!!!!!!Sending to: " + node.getIp());
+
+            try {
+                cf.addListener(new ChannelFutureListener() {
+                    public void operationComplete(ChannelFuture future)
+                            throws Exception {
+                        // check to see if we succeeded
+                        if (future.isSuccess()) {
+                            Channel channel = future.getChannel();
+                            channel.write(dropPacket);
+                            // asynchronous
+                            channel.close();
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                // Handle Exception
+            }
+        }
 	}
 
 	public void sendMessage(DropItPacket packet, FileNode node,
 			final SimpleChannelHandler handler) {
-		System.out.println("Sending MSG From Overloaded Method:"
-				+ packet.getMethod() + ", Node IP:" + node.getIp() + ", Port:"
-				+ node.getPort_ring());
+//		System.out.println("Sending MSG From Overloaded Method:"
+//				+ packet.getMethod() + ", Node IP:" + node.getIp() + ", Port:"
+//				+ node.getPort_ring());
 
 		Executor bossPool = Executors.newCachedThreadPool();
 		Executor workerPool = Executors.newCachedThreadPool();
@@ -353,7 +297,7 @@ public class FileServerNodeImpl implements FileServerNode {
         clientBootstrap.setOption("connectTimeoutMillis", 80000);
 		clientBootstrap.setPipelineFactory(pipelineFactory);
 
-		System.out.println("ring port line 314 " + node.getPort_ring());
+//		System.out.println("ring port line 314 " + node.getPort_ring());
 
 		InetSocketAddress addressToConnectTo = new InetSocketAddress(
 				node.getIp(), node.getPort_ring());
@@ -378,79 +322,45 @@ public class FileServerNodeImpl implements FileServerNode {
 		return getSuccessors().get(0);
 	}
 
-	private void pingSuccessor() {
-		DropItPacket dropItPacket = new DropItPacket(Constants.PING.name());
-		sendMessage(dropItPacket, getSuccessors().get(0));
-	}
 
 	/**
-	 * Checking whether the successor is alive
-	 * 
-	 * @param ip
-	 * @param port
-	 */
-	public void pingSuccessor(String ip, int port) {
-
-		System.out.println("PING to Successor " + ip + " " + port);
-
-		DropItPacket dropItPacket = new DropItPacket(Constants.PING.name());
-		sendMessage(dropItPacket, new FileNode(ip, port));
-
-	}
-
-	/**
-	 * Check whether the successor is alive
+	 * Check whether the successor is alive, and fixes predecessor if it has changed.
 	 */
 	public void stabilize() {
 
-		DropItPacket packet = new DropItPacket(Constants.PING.toString());
-		//this.sendMessage(packet, this.getSuccessor(),new RingCommunicationHandler(this));
-        this.sendMessage(packet, this.getSuccessor(),new FileHandler(this));
+        /*First Check if my successor has failed. If so set the successor to the next in Successor list!
+        * If succAlive is false -> successor has failed. Remove it.
+        * Send a 'SUCCALIVE msg to successor. If successor is alive it will send a LIVESUCC msg. If a LIVESUCC comes
+        * set succAlive to 'true'. Change succAlive to 'false' for the next iteration.*/
 
-		//Implementation of retrievePredecessor must be done..!!
-		
-		//Assuming the Predecessor FileNode is received. 
-		//Creating temporary FileNode for testing
-		FileNode tempPredecessor = new FileNode(1, "1", 200, 400, new KeyId(5000000));
-		
-//      FileNode curSuccessor = getSuccessor();
-//      FileNode SuccPredecessor = retrievePredecessor(curSuccessor);
-		
-		//Temporary
-		FileNode SuccPredecessor = tempPredecessor;
-		
-		long succPredKey = SuccPredecessor.getKey().getHashId();
-		long nodeKey = this.getNode().getKey().getHashId();
-		long succKey = this.getSuccessor().getKey().getHashId();
-		
-		if(SuccPredecessor != null && 
-				isAfterXButBeforeOrEqualY(succPredKey, nodeKey, succKey)){
-			
-			this.setSuccessor(SuccPredecessor);
-		}
-		
-		System.out.println("Stabilized " + this.node.getPort_ring());
+        if(!succAlive){
+            successors.remove(0);
+        }
+        DropItPacket packet2 = new DropItPacket(Constants.SUCC_ALIVE.toString());
+        sendMessage(packet2, getSuccessor());
+        succAlive = false;
+
+        /*Find my successors predecessor. If its me, then OK. If not set my successor to new Node and
+        * notify him to set his predecessor as me.*/
+        DropItPacket packet = new DropItPacket(Constants.GET_PREDECESSOR.toString());
+        packet.setAttribute(Constants.REQ_NODE.toString(), node);
+        sendMessage(packet, getSuccessor());
+
 	}
 
-    private FileNode retrievePredecessor(FileNode curSuccessor) {
-
-        //TODO;
-        DropItPacket packet = new DropItPacket(Constants.GET_PREDECESSOR.toString());
-
-        return null;
-    }
 
     /**
 	 * Called periodically. Checks whether the predecessor has failed.
 	 */
 	public void checkPredecessor() {
 
-		if (this.getPredecessor() != null) {
-
-		} else {
-			logger.log(Level.WARNING, "Predecessor is not set");
-			this.setPredecessor(null);
-		}
+        if(!predAlive){
+            predecessor = node;
+        }
+        DropItPacket packet = new DropItPacket(Constants.PRED_ALIVE.toString());
+        packet.setAttribute(Constants.REQ_NODE.toString(), node);
+        sendMessage(packet, predecessor);
+        predAlive = false;
 	}
 
 	/**
@@ -460,14 +370,15 @@ public class FileServerNodeImpl implements FileServerNode {
 	public void fixFingers() {
 		fixFinger(nextFingerToUpdate);
 		nextFingerToUpdate = (nextFingerToUpdate + 1) % fingers.size();
-		System.out.println("-----MY FINGERS------- " + node.getPort_ring()
+        System.out.println("\n______________________________________________________________________________________");
+        System.out.println("My Fingers " + node.getPort_ring()
 				+ " " + node.getKey().getHashId());
-        System.out.println("-----NEXT FINGER TO UPDATE: " + nextFingerToUpdate);
-//        for (int i = 0; i < fingers.size(); i++) {
-//			System.out.println("ME: " + node.getPort_ring() + " FInger at " + i
-//					+ ", PORT: " + fingers.get(i).getPort_ring() + ", KEY: "
-//					+ fingers.get(i).getKey().getHashId());
-//		}
+        for (int i = 0; i < fingers.size(); i++) {
+			System.out.println("ME: " + node.getPort_ring() + " Finger at " + i
+					+ ", PORT: " + fingers.get(i).getPort_ring() + ", KEY: "
+					+ fingers.get(i).getKey().getHashId());
+		}
+        System.out.println("Next finger to update: " + nextFingerToUpdate);
 	}
 
 	public void fixFinger(int finger) {
@@ -477,8 +388,8 @@ public class FileServerNodeImpl implements FileServerNode {
 		long id = base + pow;
 
 		KeyId keyId = new KeyId(id);
-		System.out.println("" + node.getPort_ring() + ": "+ node.getKey().getHashId() + "FINGER: " + finger
-                + "------Finding node for KEY:" + id);
+//		System.out.println("" + node.getPort_ring() + ": "+ node.getKey().getHashId() + "FINGER: " + finger
+//                + "------Finding node for KEY:" + id);
 //		FileNode updatedFinger = findSuccessor(keyId);
         findSuccessorAndUpdateFinger(finger, keyId);
 	}
@@ -486,20 +397,20 @@ public class FileServerNodeImpl implements FileServerNode {
     private void findSuccessorAndUpdateFinger(int finger, KeyId keyId) {
         FileNode updatedFinger = null;
         long givenKeyValue = keyId.getHashId();
-        System.out.println(">>>>>>>>INSIDE FIND AND UPDATE FINGERS: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
+//        System.out.println(">>>>>>>>INSIDE FIND AND UPDATE FINGERS: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
         FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
         if (node.equals(closestPredecessor)) {
             updatedFinger = getSuccessor();
         }
 
         if(updatedFinger != null){
-            System.out.println("" + node.getPort_ring()
-				+ "------CHANGING FINGER at " + finger + " to "
-				+ updatedFinger.getPort_ring() + " "
-				+ updatedFinger.getKey().getHashId());
+//            System.out.println("" + node.getPort_ring()
+//				+ "------CHANGING FINGER at " + finger + " to "
+//				+ updatedFinger.getPort_ring() + " "
+//				+ updatedFinger.getKey().getHashId());
             setFinger(finger, updatedFinger);
         }else{
-            System.out.println("INSIDE FIX FINGERS AND UPDATE: ASKING FROM PREDECESSOR!: "+ closestPredecessor.getPort());
+//            System.out.println("INSIDE FIX FINGERS AND UPDATE: ASKING FROM PREDECESSOR!: "+ closestPredecessor.getPort());
             DropItPacket outPacket = new DropItPacket(Constants.FND_SUSC_INT.toString());
             outPacket.setAttribute(Constants.KEY_ID.toString(), keyId);
             outPacket.setAttribute(Constants.FINGER.toString(), finger);
@@ -509,12 +420,17 @@ public class FileServerNodeImpl implements FileServerNode {
     }
 
     public void setFinger(int i, FileNode n) {
+
+        if(i != 0 && fingers.get(i).getKey().getHashId() != n.getKey().getHashId()){
+            System.out.println("FileNode :" + node.getPort() + " changing finger at " + i +" to " + node.getPort() + " with key " + node.getKey().getHashId());
+        }
+
 		if (i < 0 || i >= fingers.size())
 			return;
-		// if (i == 0) {
-		// setSuccessor(n);
-		// return;
-		// }
+		if (i == 0) {
+            setSuccessor(n);
+//            return;
+		}
 		fingers.set(i, n);
 	}
 
@@ -545,10 +461,13 @@ public class FileServerNodeImpl implements FileServerNode {
 
 	public void setSuccessor(FileNode node) {
 		// Add the node to the immediate successor
-		successors.add(0, node);
-		
-		// Remove the last successor to keep the succesor list to the size 3
-		successors.remove(successors.size() - 1);
+        if(node!=null && node.getKey().getHashId() != successors.get(0).getKey().getHashId()){
+            successors.add(0, node);
+
+            // Remove the last successor to keep the succesor list to the size 3
+            if(successors.size()>3)
+                successors.remove(successors.size() - 1);
+        }
 	}
 
 	public FileNode getNode() {
@@ -565,11 +484,7 @@ public class FileServerNodeImpl implements FileServerNode {
 		ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
 				return Channels.pipeline(new CompatibleObjectEncoder(),
-						new CompatibleObjectDecoder(),// ObjectDecoder might not
-														// work if the client
-														// side is not using
-														// netty ObjectDecoder
-														// for decoding.
+						new CompatibleObjectDecoder(),
 						handler);
 			}
 		};

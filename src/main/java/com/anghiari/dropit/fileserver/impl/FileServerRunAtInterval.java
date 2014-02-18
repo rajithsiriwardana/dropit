@@ -21,7 +21,7 @@ public class FileServerRunAtInterval extends AbstractRunAtInterval{
 		fileServer.fixFingers();
 		
 		if(fileServer.getSuccessor() != null){
-//			fileServer.stabilize();
+			fileServer.stabilize();
 		}else{
 			System.out.println("The successor list is not yet setup : FileServerRunAtInterval");
 		}

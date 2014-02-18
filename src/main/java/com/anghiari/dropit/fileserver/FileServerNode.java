@@ -12,11 +12,9 @@ import com.anghiari.dropit.commons.FileNode;
 public interface FileServerNode {
 	public void bootServer(FileNode node , boolean status);
 
-	public int findSuccessor(int hashVal);
-
     public FileNode findSuccessor(KeyId keyId);
 
-    public FileNode findSuccessor(DropItPacket inPackets);
+    public FileNode findSuccessor(DropItPacket inPacket);
 
 	public void sendMessage(DropItPacket packet, FileNode node);
 

@@ -32,7 +32,6 @@ public class RequestServerRunner {
         }
         // Parse options.
 
-
         ArrayList<InetSocketAddress> rsList1 = new ArrayList<InetSocketAddress>();
         ArrayList<InetSocketAddress> rsList2 = new ArrayList<InetSocketAddress>();
         ArrayList<InetSocketAddress> rsList3 = new ArrayList<InetSocketAddress>();
