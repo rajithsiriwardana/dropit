@@ -90,7 +90,7 @@ public class RequestNodeImpl implements RequestNode {
     }
 
     private void initGossipProtocol() {
-        GossipClientRunAtInterval gossipClientRunAtInterval = new GossipClientRunAtInterval(5000, this);
+        GossipClientRunAtInterval gossipClientRunAtInterval = new GossipClientRunAtInterval(Constants.GOSSIP_INTERVAL, this);
         gossipClientRunAtInterval.start();
     }
 

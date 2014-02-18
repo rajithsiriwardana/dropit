@@ -14,15 +14,24 @@ import java.util.ArrayList;
 public class RequestServerRunner {
 
     public static void main(String[] args) {
-        if (args.length != 3) {
-            System.err.println("Usage: " +
-                    RequestServerRunner.class.getSimpleName() + " <port> <nb of connections>");
-            return;
+//        if (args.length != 3) {
+//            System.err.println("Usage: " +
+//                    RequestServerRunner.class.getSimpleName() + " <port> <nb of connections>");
+//            return;
+//        }
+        String ip;
+        int port, nbconn;
+        if (args.length == 3) {
+            ip = args[0];
+            port = Integer.parseInt(args[1]);
+            nbconn = Integer.parseInt(args[2]);
+        } else {
+            ip = RequestServerConfigLoader.getRSServerIP();
+            port = RequestServerConfigLoader.getRSServerSocket();
+            nbconn = 1;
         }
         // Parse options.
-        String ip = args[0];
-        int port = Integer.parseInt(args[1]);
-        int nbconn = Integer.parseInt(args[2]);
+
 
         ArrayList<InetSocketAddress> rsList1 = new ArrayList<InetSocketAddress>();
         ArrayList<InetSocketAddress> rsList2 = new ArrayList<InetSocketAddress>();

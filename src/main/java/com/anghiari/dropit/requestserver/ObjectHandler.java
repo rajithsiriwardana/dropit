@@ -1,9 +1,6 @@
 package com.anghiari.dropit.requestserver;
 
-import com.anghiari.dropit.commons.Constants;
-import com.anghiari.dropit.commons.DropItPacket;
-import com.anghiari.dropit.commons.FileNode;
-import com.anghiari.dropit.commons.KeyId;
+import com.anghiari.dropit.commons.*;
 import com.anghiari.dropit.operations.PongOperation;
 import com.anghiari.dropit.requestserver.service.DHTUtils;
 import com.anghiari.dropit.requestserver.service.NodeFactory;
@@ -64,7 +61,7 @@ public class ObjectHandler extends SimpleChannelHandler {
 
 //                sendResponse(new DropItPacket("Gayya"));
                 NodeFinder nodeFinder = new NodeFinder();
-                nodeFinder.setup(NodeFactory.getNode()[0], Integer.parseInt(NodeFactory.getNode()[1]), "192.168.43.234", 13500, id, pptmp, this);
+                nodeFinder.setup(NodeFactory.getNode()[0], Integer.parseInt(NodeFactory.getNode()[1]), RequestServerConfigLoader.getRSServerIP(), RequestServerConfigLoader.getRSServerSocket(), id, pptmp, this);
             } else if (Constants.GOSSIP.toString().equalsIgnoreCase(pptmp.getMethod())) {
                 System.out.println(pptmp.getMethod() + " received!");
 

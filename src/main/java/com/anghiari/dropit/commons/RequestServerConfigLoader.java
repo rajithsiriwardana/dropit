@@ -15,7 +15,7 @@ public class RequestServerConfigLoader {
     static {
         properties = new Properties();
         try {
-            properties.load(new FileInputStream("src/main/resources/rs.properties"));
+            properties.load(new FileInputStream("config/rsconfig.properties"));
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Properties file not found");
@@ -38,5 +38,13 @@ public class RequestServerConfigLoader {
             backupList.add(new InetSocketAddress(server.split(":")[0], Integer.parseInt(server.split(":")[1])));
         }
         return backupList;
+    }
+
+    public static String getRSServerIP() {
+        return properties.getProperty("myaddress").split(":")[0];
+    }
+
+    public static int getRSServerSocket() {
+        return Integer.parseInt(properties.getProperty("myaddress").split(":")[1]);
     }
 }
