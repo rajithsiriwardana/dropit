@@ -372,14 +372,17 @@ public class FileServerNodeImpl implements FileServerNode {
 		fixFinger(nextFingerToUpdate);
 		nextFingerToUpdate = (nextFingerToUpdate + 1) % fingers.size();
         System.out.println("\n______________________________________________________________________________________");
-        System.out.println("My Fingers " + node.getPort_ring()
+        System.out.println("My Fingers " + node.getPort()
 				+ " " + node.getKey().getHashId());
         for (int i = 0; i < fingers.size(); i++) {
-			System.out.println("ME: " + node.getPort_ring() + " Finger at " + i
-					+ ", PORT: " + fingers.get(i).getPort_ring() + ", KEY: "
+			System.out.println("ME: " + node.getPort() + " Finger at " + i
+					+ ", PORT: " + fingers.get(i).getPort() + ", KEY: "
 					+ fingers.get(i).getKey().getHashId());
 		}
+        System.out.println("ME: " + node.getPort() + ", Successor: " + getSuccessor().getPort());
+        System.out.println("ME: " + node.getPort() + ", Predecessor: " + getPredecessor().getPort());
         System.out.println("Next finger to update: " + nextFingerToUpdate);
+
 	}
 
 	public void fixFinger(int finger) {

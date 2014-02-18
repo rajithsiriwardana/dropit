@@ -88,6 +88,7 @@ public class FileHandler extends SimpleChannelHandler {
             handledNode.predAlive = true;
         } else if (Constants.STORE.toString().equalsIgnoreCase(method)) {
             String fileName = (String)pkt.getAttribute(Constants.FILE_NAME.toString());
+            System.out.println("\n___________________________________________________________________________________");
             System.out.println("Node " + handledNode.getNode().getPort() + " trying to store file " + fileName);
             byte[] fileByteArray = pkt.getData();
             /*Create another copy of bytearray to send for replication*/
@@ -97,7 +98,8 @@ public class FileHandler extends SimpleChannelHandler {
 			// Modify path with the folder to save files
 			File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + fileName);
 			if (!file.exists()) {
-				file.createNewFile();
+//				file.createNewFile();
+                file.getParentFile().mkdirs();
 			}
 			FileOutputStream stream = new FileOutputStream(file);
 			stream.write(fileByteArray);
@@ -121,11 +123,13 @@ public class FileHandler extends SimpleChannelHandler {
             // Modify path with the folder to save files
             File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" + fileName);
             if (!file.exists()) {
-                file.createNewFile();
+//                file.createNewFile();
+                file.getParentFile().mkdirs();
             }
             FileOutputStream stream = new FileOutputStream(file);
             stream.write(fileByteArray);
 		} else if (Constants.RETRIEVE.toString().equalsIgnoreCase(method)) {
+            System.out.println("\n___________________________________________________________________________________");
             System.out.println("Retrieveing file "+pkt.getAttribute(Constants.FILE_NAME.toString()) + "!");
             File file = new File(Configurations.FOLDER_PATH+handledNode.getNode().getPort()+"/" +  pkt.getAttribute(Constants.FILE_NAME
 					.toString()));
@@ -162,6 +166,7 @@ public class FileHandler extends SimpleChannelHandler {
         }else if(Constants.FND_SUSC.toString().equalsIgnoreCase(method)){
             FileNode r = (FileNode)pkt.getAttribute(Constants.REQ_NODE.toString());
             long key = ((KeyId)pkt.getAttribute(Constants.KEY_ID.toString())).getHashId();
+//            System.out.println("\n___________________________________________________________________________________");
             System.out.println("Node " + handledNode.getNode().getPort() +" Finding Successor for Key: "+ key +", Requester: " + r.getIp() +":" + r.getPort());
             FindSuccessorOperation findOperation = new FindSuccessorOperation(handledNode, ctx, e, pkt);
             findOperation.sendResponse(method);

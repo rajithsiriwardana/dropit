@@ -12,6 +12,8 @@ import com.anghiari.dropit.commons.FileNode;
 public interface FileServerNode {
 	public void bootServer(FileNode node , boolean status);
 
+    public FileNode getNode();
+
     public FileNode findSuccessor(KeyId keyId);
 
     public FileNode findSuccessor(DropItPacket inPacket);
