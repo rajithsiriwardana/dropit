@@ -30,6 +30,9 @@ public class FileServerRunner {
             node = new FileNode(ip, extPorts[i], intPorts[i], new KeyId(keys[i]));
             fileServer = new FileServerNodeImpl();
             fileServer.bootServer(node, true);
+//            try{
+//                Thread.sleep(100);
+//            }catch (InterruptedException ex){}
         }
 
 //        PingOperation op=new PingOperation(new FileServerNodeImpl(),ip, 14501);

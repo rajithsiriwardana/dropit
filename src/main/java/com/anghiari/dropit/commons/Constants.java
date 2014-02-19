@@ -24,6 +24,7 @@ public enum Constants {
         REQUEST_SERVER_LIST[1] = new FileNode("", 0);
     }
 
-    public static final int FS_INTERVAL = 5000;
+    public static final int FS_INTERVAL = 10000;
     public static final int GOSSIP_INTERVAL = 5000;
+    public static final float LOG_BASE = 16.0f;
 }

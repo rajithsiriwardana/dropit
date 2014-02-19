@@ -3,5 +3,8 @@ package com.anghiari.dropit.operations;
 /**
  * @author: sunimal
  */
-public class StoreOperation {
+public class StoreOperation extends AbstractOperation{
+
+
+
 }

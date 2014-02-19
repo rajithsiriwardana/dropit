@@ -26,6 +26,7 @@ public abstract class AbstractOperation {
         Channel channel = e.getChannel();
         ChannelFuture channelFuture = Channels.future(e.getChannel());
         ChannelEvent responseEvent = new DownstreamMessageEvent(channel, channelFuture, packet, channel.getRemoteAddress());
+//        System.out.println("===== sending to" + channel.getRemoteAddress().toString());
         ctx.sendDownstream(responseEvent);
 
     }

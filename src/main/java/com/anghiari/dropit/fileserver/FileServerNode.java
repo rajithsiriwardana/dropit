@@ -14,7 +14,7 @@ public interface FileServerNode {
 
     public FileNode getNode();
 
-    public FileNode findSuccessor(KeyId keyId);
+//    public FileNode findSuccessor(KeyId keyId);
 
     public FileNode findSuccessor(DropItPacket inPacket);
 

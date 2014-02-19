@@ -155,30 +155,30 @@ public class FileServerNodeImpl implements FileServerNode {
 		intervalExecutor.start();
 	}
 
-	public FileNode findSuccessor(KeyId key) {
-
-		/*
-		 * Try to find the closestPredecessor from my finger list. If I'm the
-		 * closestPredecessor => return my successor. Else ask
-		 * closestPredecessor to find the keys' successor.
-		 */
-
-		long givenKeyValue = key.getHashId();
+//	public FileNode findSuccessor(KeyId key) {
+//
+//		/*
+//		 * Try to find the closestPredecessor from my finger list. If I'm the
+//		 * closestPredecessor => return my successor. Else ask
+//		 * closestPredecessor to find the keys' successor.
+//		 */
+//
+//		long givenKeyValue = key.getHashId();
 //        System.out.println(">>>>>>>>INSIDE FIND SUCCESSOR: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
-		FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
-		if (node.equals(closestPredecessor)) {
-			return getSuccessor();
-		}
-
-		/* Send message to closestPredecessor to get the keys' successor */
-//        System.out.println(">>>>>>>>Asking Closest Predessor to Find SUccessor<<<<<<<<");
-        DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
-		packet.setAttribute(Constants.KEY_ID.toString(), key);
-
-		sendMessage(packet, closestPredecessor);
-//        System.out.println(">>>>>>>>PREDECESSOR REPLIED :D<<<<<<<<");
-        return null;
-	}
+//		FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
+//		if (node.equals(closestPredecessor)) {
+//			return getSuccessor();
+//		}
+//
+//		/* Send message to closestPredecessor to get the keys' successor */
+////        System.out.println(">>>>>>>>Asking Closest Predessor to Find SUccessor<<<<<<<<");
+//        DropItPacket packet = new DropItPacket(Constants.FND_SUSC.toString());
+//		packet.setAttribute(Constants.KEY_ID.toString(), key);
+//
+//		sendMessage(packet, closestPredecessor);
+////        System.out.println(">>>>>>>>PREDECESSOR REPLIED :D<<<<<<<<");
+//        return null;
+//	}
 
     public FileNode findSuccessor(DropItPacket inPacket){
         KeyId key = (KeyId)inPacket.getAttribute(Constants.KEY_ID.toString());
@@ -267,7 +267,8 @@ public class FileServerNodeImpl implements FileServerNode {
                             Channel channel = future.getChannel();
                             channel.write(dropPacket);
                             // asynchronous
-                            if(!dropPacket.getMethod().equalsIgnoreCase(Constants.REPLICATE.toString()))
+                            if(!(dropPacket.getMethod().equalsIgnoreCase(Constants.REPLICATE.toString()) ||
+                                    dropPacket.getMethod().equalsIgnoreCase(Constants.TRANSFER.toString())))
                                 channel.close();
                         }
                     }
@@ -335,17 +336,19 @@ public class FileServerNodeImpl implements FileServerNode {
         * set succAlive to 'true'. Change succAlive to 'false' for the next iteration.*/
 
         if(!succAlive){
+//            System.out.println("Node " + node.getPort() + " removing successor " + successors.get(0).getPort());
             successors.remove(0);
         }
-        DropItPacket packet2 = new DropItPacket(Constants.SUCC_ALIVE.toString());
-        sendMessage(packet2, getSuccessor());
+        DropItPacket packet = new DropItPacket(Constants.SUCC_ALIVE.toString());
+        packet.setAttribute(Constants.REQ_NODE.toString(), node);
+        sendMessage(packet, getSuccessor());
         succAlive = false;
 
         /*Find my successors predecessor. If its me, then OK. If not set my successor to new Node and
         * notify him to set his predecessor as me.*/
-        DropItPacket packet = new DropItPacket(Constants.GET_PREDECESSOR.toString());
-        packet.setAttribute(Constants.REQ_NODE.toString(), node);
-        sendMessage(packet, getSuccessor());
+        DropItPacket packet2 = new DropItPacket(Constants.GET_PREDECESSOR.toString());
+        packet2.setAttribute(Constants.REQ_NODE.toString(), node);
+        sendMessage(packet2, getSuccessor());
 
 	}
 
@@ -388,7 +391,7 @@ public class FileServerNodeImpl implements FileServerNode {
 	public void fixFinger(int finger) {
 		long base = node.getKey().getHashId();
 //		long pow = 0x0000000000000001L << finger;
-        long pow = (long)Math.pow(2.0f, finger);
+        long pow = (long)Math.pow(Constants.LOG_BASE, finger);
 		long id = base + pow;
 
 		KeyId keyId = new KeyId(id);
@@ -404,6 +407,7 @@ public class FileServerNodeImpl implements FileServerNode {
 //        System.out.println(">>>>>>>>INSIDE FIND AND UPDATE FINGERS: FINDING FOR KEY:"+ givenKeyValue +"<<<<<<<<");
         FileNode closestPredecessor = getClosestPredecessor(givenKeyValue);
         if (node.equals(closestPredecessor)) {
+//            System.out.println("================= closest predecessor " + givenKeyValue + " : " + node.getPort() );
             updatedFinger = getSuccessor();
         }
 
@@ -463,10 +467,11 @@ public class FileServerNodeImpl implements FileServerNode {
 		this.successors = successors;
 	}
 
-	public void setSuccessor(FileNode node) {
+	public void setSuccessor(FileNode newSucc) {
 		// Add the node to the immediate successor
-        if(node!=null && node.getKey().getHashId() != successors.get(0).getKey().getHashId()){
-            successors.add(0, node);
+        if(newSucc!=null && !newSucc.equals(successors.get(0)) && !newSucc.equals(node)){
+            System.out.println(">>>> Node " + node.getPort() + " changing successor to " + newSucc.getPort() + ". Old succ: " + successors.get(0).getPort());
+            successors.set(0, newSucc);
 
             // Remove the last successor to keep the succesor list to the size 3
             if(successors.size()>3)
