@@ -1,7 +1,5 @@
 package com.anghiari.dropit.fileserver.impl;
 
-import com.anghiari.dropit.operations.PingOperation;
-
 /**
  * 
  * @author chinthaka316
@@ -18,10 +16,10 @@ public class FileServerRunAtInterval extends AbstractRunAtInterval{
 
 	@Override
 	public void runClosure() {
-		fileServer.fixFingers();
-		
 		if(fileServer.getSuccessor() != null){
 			fileServer.stabilize();
+            fileServer.checkPredecessor();
+            fileServer.fixFingers();
 		}else{
 			System.out.println("The successor list is not yet setup : FileServerRunAtInterval");
 		}

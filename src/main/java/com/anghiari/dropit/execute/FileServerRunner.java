@@ -4,8 +4,6 @@ import com.anghiari.dropit.commons.Configurations;
 import com.anghiari.dropit.commons.FileNode;
 import com.anghiari.dropit.commons.KeyId;
 import com.anghiari.dropit.fileserver.impl.FileServerNodeImpl;
-import com.anghiari.dropit.fileserver.impl.RingCommunicationHandler;
-import com.anghiari.dropit.operations.PingOperation;
 import com.anghiari.dropit.operations.ReqServerForNodeOperation;
 
 /**
@@ -19,10 +17,10 @@ public class FileServerRunner {
         String ip = Configurations.ip;
 //        int numberOfNodes = Integer.parseInt(args[0]);
 //
-        int[] intPorts = Configurations.intPorts;
-        int[] extPorts = Configurations.extPorts;
-        int[] keys = Configurations.fileNodeKeys;
-        int numberOfNodes = intPorts.length;
+        int[] intPorts = Configurations.myPorts;
+        int[] extPorts = Configurations.myPorts;
+        int[] keys = Configurations.myKeys;
+        int numberOfNodes = Configurations.myServerCount;
         FileNode node;
         FileServerNodeImpl fileServer;
 

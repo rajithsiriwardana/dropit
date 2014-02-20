@@ -102,16 +102,17 @@ public class FileServerNodeImpl implements FileServerNode {
 		/* TEMPORARY IMPLEMENTATION. */
 		String ip = Configurations.ip;
 
+        String[] ips = Configurations.ips;
 		int[] intPorts = Configurations.intPorts;
 		int[] extPorts = Configurations.extPorts;
 		int[] keys = Configurations.fileNodeKeys;
-		int numberOfNodes = intPorts.length;
+		int numberOfNodes = Configurations.totalServerCount;
 
 		long myKey = node.getKey().getHashId();
 		FileNode[] nodes = new FileNode[numberOfNodes];
 
 		for (int i = 0; i < numberOfNodes; i++) {
-			nodes[i] = new FileNode(ip, extPorts[i], intPorts[i], new KeyId(
+			nodes[i] = new FileNode(ips[i], extPorts[i], intPorts[i], new KeyId(
 					keys[i]));
 		}
 

@@ -32,10 +32,12 @@ public abstract class AbstractRunAtInterval extends Thread {
     public void run() {
         super.run();
         while (interval != 0) {
+//            System.out.println("Sleeping");
             try {
                 sleep(interval);
             } catch (InterruptedException e) {
             }
+//            System.out.println("Running");
             runClosure();
 
         }
