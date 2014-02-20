@@ -178,10 +178,12 @@ public class FileHandler extends SimpleChannelHandler {
             bufferedInputStream.read(filedata, 0, filedata.length);
             bufferedInputStream.close();
         }
+
+        System.out.println("File " + file.getName() + " sending to " + e.getRemoteAddress().toString());
+
         TransferOperation transferOperation = new TransferOperation(ctx, e, filedata, file.getName());
         transferOperation.sendResponse();
 
-        System.out.println("File " + file.getName() + " sent to " + e.getRemoteAddress().toString());
     }
 
     private void replicate(DropItPacket pkt) {

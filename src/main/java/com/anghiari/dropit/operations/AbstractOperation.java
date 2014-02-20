@@ -27,8 +27,12 @@ public abstract class AbstractOperation {
         ChannelFuture channelFuture = Channels.future(e.getChannel());
         ChannelEvent responseEvent = new DownstreamMessageEvent(channel, channelFuture, packet, channel.getRemoteAddress());
 //        System.out.println("===== sending to" + channel.getRemoteAddress().toString());
-        ctx.sendDownstream(responseEvent);
-
+        try{
+            ctx.sendDownstream(responseEvent);
+        }catch (Exception ex){
+            System.out.println("Node: " + fileServer.getNode().getPort() + " sending to"+
+                   channel.getRemoteAddress().toString()  +"failed! " + ex.toString());
+        }
     }
 
     //Sending newly initiated messages

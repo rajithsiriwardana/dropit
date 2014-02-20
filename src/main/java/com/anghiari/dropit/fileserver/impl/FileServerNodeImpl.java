@@ -336,7 +336,7 @@ public class FileServerNodeImpl implements FileServerNode {
         * Send a 'SUCCALIVE msg to successor. If successor is alive it will send a LIVESUCC msg. If a LIVESUCC comes
         * set succAlive to 'true'. Change succAlive to 'false' for the next iteration.*/
 
-        if(!succAlive){
+        if(!succAlive && !successors.isEmpty()){
 //            System.out.println("Node " + node.getPort() + " removing successor " + successors.get(0).getPort());
             successors.remove(0);
         }
